@@ -19,7 +19,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText edtLoginUser, edtLoginPass;
     private Button btnLogin, btnRegisterNow;
-    private TextView tvForgotPass, chipDemoCustomer, chipDemoStaff, chipDemoAdmin;
+    private TextView tvForgotPass;
     private SqlServerHelper sqlServerHelper;
 
     @Override
@@ -29,8 +29,8 @@ public class LoginActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
-            window.setStatusBarColor(Color.parseColor("#7DD3FC"));
-            window.setNavigationBarColor(Color.parseColor("#047857"));
+            window.setStatusBarColor(Color.parseColor("#7FD8BE"));
+            window.setNavigationBarColor(Color.parseColor("#04221B"));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
@@ -43,36 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnRegisterNow = findViewById(R.id.btnRegisterNow);
         tvForgotPass = findViewById(R.id.tvForgotPass);
-        chipDemoCustomer = findViewById(R.id.chipDemoCustomer);
-        chipDemoStaff = findViewById(R.id.chipDemoStaff);
-        chipDemoAdmin = findViewById(R.id.chipDemoAdmin);
 
-        // Bấm nhanh 3 chip tài khoản demo (điền sẵn tài khoản & mật khẩu 123456)
-        chipDemoCustomer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                edtLoginUser.setText("khach");
-                edtLoginPass.setText("123456");
-            }
-        });
-
-        chipDemoStaff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                edtLoginUser.setText("nhanvien");
-                edtLoginPass.setText("123456");
-            }
-        });
-
-        chipDemoAdmin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                edtLoginUser.setText("quanly");
-                edtLoginPass.setText("123456");
-            }
-        });
-
-        // Bấm Đăng nhập -> Xác thực với SQL Server (.\SQLEXPRESS -> BadmintonDB)
+        // Bấm Đăng nhập -> Xác thực trực tiếp với SQL Server (.\SQLEXPRESS -> BadmintonDB)
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,12 +53,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (rawUser.isEmpty() || pass.isEmpty()) {
                     Toast.makeText(LoginActivity.this,
-                            "Vui lòng nhập Tài khoản và Mật khẩu!",
+                            "Vui lòng nhập Tài khoản (khach / nhanvien / quanly) và Mật khẩu!",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // Hỗ trợ cả tên ngắn (khach/nhanvien/quanly) lẫn email demo
                 String user = rawUser.toLowerCase();
                 if ("khachhang@demo.vn".equals(user)) user = "khach";
                 else if ("nhanvien@demo.vn".equals(user)) user = "nhanvien";
