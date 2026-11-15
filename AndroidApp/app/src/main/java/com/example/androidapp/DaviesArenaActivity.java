@@ -62,9 +62,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
     // Staff reputation filter state
     private int selectedStaffIndex = 0;
 
-    // Admin revenue date & filter state (6 = Hôm nay 15/11/2026, 0..5 = 09/11..14/11, -1 = Tổng 7 ngày)
-    private int adminSelectedDayIndex = 6;
+    // Admin revenue date & filter state (Mặc định 15/11/2026, có đầy đủ dữ liệu từ 01/11/2026 -> 30/11/2026)
+    private int adminSelectedDay = 15;
+    private int adminSelectedMonth = 11;
+    private int adminSelectedYear = 2026;
     private String adminInvoiceFilter = "ALL"; // ALL, COC_QR, TAI_QUAY, DICH_VU
+
+    // Admin Nhân sự & Xếp ca state
+    private int adminStaffSubTab = 0; // 0 = Xếp hạng & Đánh giá, 1 = Xếp ca nhân viên
+    private int adminSelectedShiftDayIdx = 0; // 0..6 (T2..CN)
 
     // Header & Body Views
     private TextView tvHeaderTitle, tvHeaderSub, tvHeaderGlass, btnHeaderLogout, btnHeaderTheme;
@@ -778,50 +784,24 @@ public class DaviesArenaActivity extends AppCompatActivity {
     // ==================== ROLE 3: CHỦ SÂN / ADMIN ====================
 
     /**
-     * Tab 0 Admin: Quản lý Doanh thu & Đối soát Lịch sử theo từng ngày thực tế (09/11/2026 - 15/11/2026)
+     * Tab 0 Admin: Quản lý Doanh thu & Chi tiết hóa đơn từ đầu tháng (01/11/2026 -> 30/11/2026)
      */
     private void renderAdminRevenueTab() {
-        DataStore.getTodayRevenueRecord(); // Đồng bộ số liệu mới nhất của ngày hôm nay (15/11/2026)
+        final DataStore.DailyRevenueRecord activeDay = DataStore.getRevenueRecordForDate(
+                adminSelectedDay, adminSelectedMonth, adminSelectedYear);
 
-        final boolean isWeekMode = (adminSelectedDayIndex == -1);
-        final DataStore.DailyRevenueRecord activeDay = isWeekMode
-                ? DataStore.listDoanhThu7Ngay.get(6)
-                : DataStore.listDoanhThu7Ngay.get(adminSelectedDayIndex);
-
-        int dispCocQR = 0;
-        int dispTaiQuay = 0;
-        int dispDichVu = 0;
-        int dispDonDone = 0;
-        final ArrayList<DataStore.HoaDonChiTiet> dispInvoices = new ArrayList<>();
-
-        if (isWeekMode) {
-            for (DataStore.DailyRevenueRecord d : DataStore.listDoanhThu7Ngay) {
-                dispCocQR += d.tienCocQR;
-                dispTaiQuay += d.tienTaiQuay;
-                dispDichVu += d.tienDichVu;
-                dispDonDone += d.soDonHoanThanh;
-                dispInvoices.addAll(d.danhSachHoaDon);
-            }
-        } else {
-            dispCocQR = activeDay.tienCocQR;
-            dispTaiQuay = activeDay.tienTaiQuay;
-            dispDichVu = activeDay.tienDichVu;
-            dispDonDone = activeDay.soDonHoanThanh;
-            dispInvoices.addAll(activeDay.danhSachHoaDon);
-        }
+        final int dispCocQR = activeDay.tienCocQR;
+        final int dispTaiQuay = activeDay.tienTaiQuay;
+        final int dispDichVu = activeDay.tienDichVu;
+        final int dispDonDone = activeDay.soDonHoanThanh;
+        final ArrayList<DataStore.HoaDonChiTiet> dispInvoices = activeDay.danhSachHoaDon;
         final int totalRev = dispCocQR + dispTaiQuay + dispDichVu;
 
         tvHeaderTitle.setText("Tổng quan doanh thu");
-        if (isWeekMode) {
-            tvHeaderSub.setText("Tổng hợp 7 ngày (09/11/2026 – 15/11/2026)");
-        } else if (adminSelectedDayIndex == 6) {
-            tvHeaderSub.setText("Hôm nay (" + activeDay.thu + ", " + activeDay.ngayDayDu + ") • Tự cập nhật từ quầy");
-        } else {
-            tvHeaderSub.setText("Lịch sử ngày " + activeDay.thu + ", " + activeDay.ngayDayDu);
-        }
+        tvHeaderSub.setText("Ngày " + activeDay.thu + ", " + activeDay.ngayDayDu + " • Dữ liệu cả tháng");
         tvHeaderGlass.setVisibility(View.GONE);
 
-        // ==================== 1. THANH ĐIỀU HƯỚNG NGÀY & BỘ LỌC NHANH ====================
+        // ==================== 1. THANH CHỌN NGÀY RÕ RÀNG (01/11/2026 -> 30/11/2026) ====================
         LinearLayout dateNavCard = createWhiteCard();
         dateNavCard.setPadding(dp(12), dp(12), dp(12), dp(12));
 
@@ -830,23 +810,20 @@ public class DaviesArenaActivity extends AppCompatActivity {
         navTopRow.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView btnPrevDay = new TextView(this);
-        btnPrevDay.setLayoutParams(new LinearLayout.LayoutParams(dp(36), dp(36)));
+        btnPrevDay.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
         btnPrevDay.setBackgroundResource(R.drawable.bg_input_field_14);
         btnPrevDay.setGravity(Gravity.CENTER);
         btnPrevDay.setText("◀");
         btnPrevDay.setTextColor(Color.parseColor("#065F46"));
-        btnPrevDay.setTextSize(14f);
+        btnPrevDay.setTextSize(15f);
         btnPrevDay.setTypeface(null, Typeface.BOLD);
         btnPrevDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (adminSelectedDayIndex == -1) {
-                    adminSelectedDayIndex = 5;
-                } else if (adminSelectedDayIndex > 0) {
-                    adminSelectedDayIndex--;
+                if (adminSelectedDay > 1) {
+                    adminSelectedDay--;
                 } else {
-                    Toast.makeText(DaviesArenaActivity.this, "Đã ở ngày đầu tuần (T2, 09/11/2026)", Toast.LENGTH_SHORT).show();
-                    return;
+                    adminSelectedDay = 30;
                 }
                 renderScreen();
             }
@@ -854,23 +831,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
         navTopRow.addView(btnPrevDay);
 
         TextView tvCenterDate = new TextView(this);
-        LinearLayout.LayoutParams centerDateLp = new LinearLayout.LayoutParams(0, dp(36), 1f);
+        LinearLayout.LayoutParams centerDateLp = new LinearLayout.LayoutParams(0, dp(40), 1f);
         centerDateLp.leftMargin = dp(8);
         centerDateLp.rightMargin = dp(8);
         tvCenterDate.setLayoutParams(centerDateLp);
         tvCenterDate.setBackgroundResource(R.drawable.bg_note_mint);
         tvCenterDate.setGravity(Gravity.CENTER);
-        if (isWeekMode) {
-            tvCenterDate.setText("📅 Tuần: 09/11 – 15/11/2026");
-        } else if (adminSelectedDayIndex == 6) {
-            tvCenterDate.setText("📅 " + activeDay.thu + ", " + activeDay.ngayDayDu + " (Hôm nay)");
-        } else if (adminSelectedDayIndex == 5) {
-            tvCenterDate.setText("📅 " + activeDay.thu + ", " + activeDay.ngayDayDu + " (Hôm qua)");
-        } else {
-            tvCenterDate.setText("📅 " + activeDay.thu + ", " + activeDay.ngayDayDu);
-        }
+        tvCenterDate.setText("📅 " + activeDay.thu + ", Ngày " + activeDay.ngayDayDu + " (Chọn lịch)");
         tvCenterDate.setTextColor(Color.parseColor("#065F46"));
-        tvCenterDate.setTextSize(13f);
+        tvCenterDate.setTextSize(13.5f);
         tvCenterDate.setTypeface(null, Typeface.BOLD);
         tvCenterDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -881,57 +850,26 @@ public class DaviesArenaActivity extends AppCompatActivity {
         navTopRow.addView(tvCenterDate);
 
         TextView btnNextDay = new TextView(this);
-        btnNextDay.setLayoutParams(new LinearLayout.LayoutParams(dp(36), dp(36)));
+        btnNextDay.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
         btnNextDay.setBackgroundResource(R.drawable.bg_input_field_14);
         btnNextDay.setGravity(Gravity.CENTER);
         btnNextDay.setText("▶");
         btnNextDay.setTextColor(Color.parseColor("#065F46"));
-        btnNextDay.setTextSize(14f);
+        btnNextDay.setTextSize(15f);
         btnNextDay.setTypeface(null, Typeface.BOLD);
         btnNextDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (adminSelectedDayIndex == -1) {
-                    adminSelectedDayIndex = 6;
-                } else if (adminSelectedDayIndex < 6) {
-                    adminSelectedDayIndex++;
+                if (adminSelectedDay < 30) {
+                    adminSelectedDay++;
                 } else {
-                    Toast.makeText(DaviesArenaActivity.this, "Đang ở ngày hôm nay (CN, 15/11/2026)", Toast.LENGTH_SHORT).show();
-                    return;
+                    adminSelectedDay = 1;
                 }
                 renderScreen();
             }
         });
         navTopRow.addView(btnNextDay);
         dateNavCard.addView(navTopRow);
-
-        // Hàng Chip lọc nhanh: Hôm nay (15/11) | Hôm qua (14/11) | Tổng 7 ngày
-        LinearLayout quickChipsRow = new LinearLayout(this);
-        quickChipsRow.setOrientation(LinearLayout.HORIZONTAL);
-        quickChipsRow.setPadding(0, dp(10), 0, 0);
-
-        quickChipsRow.addView(createQuickFilterChip("Hôm nay (15/11)", adminSelectedDayIndex == 6, true, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminSelectedDayIndex = 6;
-                renderScreen();
-            }
-        }));
-        quickChipsRow.addView(createQuickFilterChip("Hôm qua (14/11)", adminSelectedDayIndex == 5, true, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminSelectedDayIndex = 5;
-                renderScreen();
-            }
-        }));
-        quickChipsRow.addView(createQuickFilterChip("Tổng 7 ngày", adminSelectedDayIndex == -1, false, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminSelectedDayIndex = -1;
-                renderScreen();
-            }
-        }));
-        dateNavCard.addView(quickChipsRow);
         containerDynamicBody.addView(dateNavCard);
 
         // ==================== 2. THẺ HERO TỔNG DOANH THU & 4 Ô KPI ====================
@@ -945,9 +883,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
         heroCard.setLayoutParams(heroLp);
 
         TextView tvHeroSub = new TextView(this);
-        tvHeroSub.setText(isWeekMode
-                ? "Tổng doanh thu 7 ngày (09/11 – 15/11/2026)"
-                : ("Tổng doanh thu • " + activeDay.thu + ", " + activeDay.ngayDayDu));
+        tvHeroSub.setText("Tổng doanh thu • " + activeDay.thu + ", " + activeDay.ngayDayDu);
         tvHeroSub.setTextColor(Color.parseColor("#D1FAE5"));
         tvHeroSub.setTextSize(12.5f);
         heroCard.addView(tvHeroSub);
@@ -957,14 +893,8 @@ public class DaviesArenaActivity extends AppCompatActivity {
         tvHeroTotal.setTextColor(Color.WHITE);
         tvHeroTotal.setTextSize(28f);
         tvHeroTotal.setTypeface(null, Typeface.BOLD);
-        tvHeroTotal.setPadding(0, dp(2), 0, dp(4));
+        tvHeroTotal.setPadding(0, dp(2), 0, 0);
         heroCard.addView(tvHeroTotal);
-
-        TextView tvHeroHint = new TextView(this);
-        tvHeroHint.setText("📊 Chạm để mở Bảng kê đối soát chi tiết • " + dispInvoices.size() + " hóa đơn");
-        tvHeroHint.setTextColor(Color.parseColor("#A7F3D0"));
-        tvHeroHint.setTextSize(11.5f);
-        heroCard.addView(tvHeroHint);
 
         heroCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -982,97 +912,54 @@ public class DaviesArenaActivity extends AppCompatActivity {
         rowLp.bottomMargin = dp(10);
         row1.setLayoutParams(rowLp);
 
-        LinearLayout kpiCoc = createKpiMiniCard("Tiền cọc 30% qua QR", formatMoney(dispCocQR), true);
-        kpiCoc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminInvoiceFilter = "COC_QR";
-                renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Đang lọc các đơn có Tiền cọc 30% qua QR", Toast.LENGTH_SHORT).show();
-            }
-        });
-        row1.addView(kpiCoc);
-
-        LinearLayout kpiQuay = createKpiMiniCard("Tiền thu tại quầy", formatMoney(dispTaiQuay), false);
-        kpiQuay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminInvoiceFilter = "TAI_QUAY";
-                renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Đang lọc các đơn thu tiền tại quầy", Toast.LENGTH_SHORT).show();
-            }
-        });
-        row1.addView(kpiQuay);
+        row1.addView(createKpiMiniCard("Tiền cọc 30% qua QR", formatMoney(dispCocQR), true));
+        row1.addView(createKpiMiniCard("Tiền thu tại quầy", formatMoney(dispTaiQuay), false));
         containerDynamicBody.addView(row1);
 
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setLayoutParams(rowLp);
 
-        LinearLayout kpiDichVu = createKpiMiniCard("Bán nước/phụ kiện", formatMoney(dispDichVu), true);
-        kpiDichVu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminInvoiceFilter = "DICH_VU";
-                renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Đang lọc các đơn có mua nước & phụ kiện", Toast.LENGTH_SHORT).show();
-            }
-        });
-        row2.addView(kpiDichVu);
-
-        LinearLayout kpiDon = createKpiMiniCard("Số đơn hoàn thành", dispDonDone + " đơn", false);
-        kpiDon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminInvoiceFilter = "ALL";
-                renderScreen();
-                showAdminRevenueDetailModal();
-            }
-        });
-        row2.addView(kpiDon);
+        row2.addView(createKpiMiniCard("Bán nước/phụ kiện", formatMoney(dispDichVu), true));
+        row2.addView(createKpiMiniCard("Số đơn hoàn thành", String.valueOf(dispDonDone), false));
         containerDynamicBody.addView(row2);
 
-        // ==================== 3. BIỂU ĐỒ 7 NGÀY CÓ GHI RÕ THỨ + NGÀY/THÁNG ====================
-        containerDynamicBody.addView(createSectionHeading("Doanh thu theo ngày (09/11 – 15/11 • nghìn đồng)"));
+        // ==================== 3. BIỂU ĐỒ 7 NGÀY HIỂN THỊ RÕ THỨ + NGÀY/THÁNG ====================
+        int endDay = Math.min(30, Math.max(7, adminSelectedDay));
+        int startDay = endDay - 6;
+        containerDynamicBody.addView(createSectionHeading(
+                String.format(Locale.US, "Doanh thu theo ngày (%02d/%02d – %02d/%02d • nghìn đồng)",
+                        startDay, adminSelectedMonth, endDay, adminSelectedMonth)));
+
         LinearLayout chartCard = createWhiteCard();
-
-        TextView tvChartGuide = new TextView(this);
-        tvChartGuide.setText("💡 Chạm vào cột ngày bất kỳ để xem doanh thu & hóa đơn của ngày đó");
-        tvChartGuide.setTextColor(Color.parseColor("#059669"));
-        tvChartGuide.setTextSize(11.5f);
-        tvChartGuide.setTypeface(null, Typeface.BOLD);
-        tvChartGuide.setPadding(0, 0, 0, dp(8));
-        chartCard.addView(tvChartGuide);
-
         LinearLayout barContainer = new LinearLayout(this);
         barContainer.setOrientation(LinearLayout.HORIZONTAL);
         barContainer.setGravity(Gravity.BOTTOM);
         barContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(168)));
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(164)));
 
         int maxVal = 1250;
-        for (DataStore.DailyRevenueRecord rec : DataStore.listDoanhThu7Ngay) {
-            int k = rec.getTongDoanhThu() / 1000;
+        for (int d = startDay; d <= endDay; d++) {
+            DataStore.DailyRevenueRecord r = DataStore.getRevenueRecordForDate(d, adminSelectedMonth, adminSelectedYear);
+            int k = r.getTongDoanhThu() / 1000;
             if (k > maxVal) maxVal = k;
         }
 
-        for (int i = 0; i < DataStore.listDoanhThu7Ngay.size(); i++) {
-            final int dayIdx = i;
-            final DataStore.DailyRevenueRecord rec = DataStore.listDoanhThu7Ngay.get(i);
-            final int valK = rec.getTongDoanhThu() / 1000;
-            final boolean isSelectedBar = isWeekMode || (adminSelectedDayIndex == i);
+        for (int d = startDay; d <= endDay; d++) {
+            DataStore.DailyRevenueRecord rec = DataStore.getRevenueRecordForDate(d, adminSelectedMonth, adminSelectedYear);
+            int valK = rec.getTongDoanhThu() / 1000;
+            boolean isSelectedBar = (d == adminSelectedDay);
 
             LinearLayout col = new LinearLayout(this);
             col.setOrientation(LinearLayout.VERTICAL);
             col.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
             LinearLayout.LayoutParams colLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-            if (i < 6) colLp.rightMargin = dp(5);
+            if (d < endDay) colLp.rightMargin = dp(5);
             col.setLayoutParams(colLp);
 
-            // Số tiền trên đỉnh cột (VD: 1250k)
             TextView tvValTop = new TextView(this);
             tvValTop.setGravity(Gravity.CENTER);
-            tvValTop.setText(valK + "k");
+            tvValTop.setText(String.valueOf(valK));
             tvValTop.setTextColor(isSelectedBar ? Color.parseColor("#D97706") : Color.parseColor("#065F46"));
             tvValTop.setTextSize(10f);
             tvValTop.setTypeface(null, Typeface.BOLD);
@@ -1085,7 +972,6 @@ public class DaviesArenaActivity extends AppCompatActivity {
             bar.setBackgroundResource(isSelectedBar ? R.drawable.bg_court_booked : R.drawable.bg_court_free);
             col.addView(bar);
 
-            // Thứ (T2..CN)
             TextView tvDay = new TextView(this);
             tvDay.setGravity(Gravity.CENTER);
             tvDay.setText(rec.thu);
@@ -1095,7 +981,6 @@ public class DaviesArenaActivity extends AppCompatActivity {
             tvDay.setPadding(0, dp(4), 0, 0);
             col.addView(tvDay);
 
-            // Ngày/Tháng rõ ràng (09/11..15/11)
             TextView tvDateShort = new TextView(this);
             tvDateShort.setGravity(Gravity.CENTER);
             tvDateShort.setText(rec.ngayNgan);
@@ -1104,63 +989,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
             tvDateShort.setTypeface(null, isSelectedBar ? Typeface.BOLD : Typeface.NORMAL);
             col.addView(tvDateShort);
 
-            col.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    adminSelectedDayIndex = dayIdx;
-                    renderScreen();
-                    Toast.makeText(DaviesArenaActivity.this,
-                            "Đang xem doanh thu " + rec.thu + ", ngày " + rec.ngayDayDu + ": " + formatMoney(rec.getTongDoanhThu()),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-
             barContainer.addView(col);
         }
         chartCard.addView(barContainer);
         containerDynamicBody.addView(chartCard);
 
-        // ==================== 4. ĐỐI SOÁT CA THU NGÂN & MẶT HÀNG ĐÃ BÁN TRONG NGÀY ====================
-        containerDynamicBody.addView(createSectionHeading(isWeekMode
-                ? "Đối soát thu ngân & dịch vụ (7 ngày)"
-                : ("Đối soát ca trực & dịch vụ (" + activeDay.ngayDayDu + ")")));
-        LinearLayout shiftCard = createWhiteCard();
+        // ==================== 4. CHI TIẾT HÓA ĐƠN TRONG NGÀY ĐANG CHỌN ====================
+        containerDynamicBody.addView(createSectionHeading(
+                "Chi tiết hóa đơn ngày " + activeDay.ngayDayDu + " (" + dispInvoices.size() + " đơn)"));
 
-        int revHung = 0, countHung = 0;
-        int revMai = 0, countMai = 0;
-        int revNam = 0, countNam = 0;
-        for (DataStore.HoaDonChiTiet hd : dispInvoices) {
-            if (hd.nhanVienThu.contains("Hùng")) {
-                revHung += hd.getTongThu();
-                countHung++;
-            } else if (hd.nhanVienThu.contains("Mai")) {
-                revMai += hd.getTongThu();
-                countMai++;
-            } else {
-                revNam += hd.getTongThu();
-                countNam++;
-            }
-        }
-
-        shiftCard.addView(createKeyValueRow("🧑‍💼 Ca Sáng • Nguyễn Văn Hùng (" + countHung + " đơn)", formatMoney(revHung), false));
-        shiftCard.addView(createKeyValueRow("👩‍💼 Ca Chiều • Trần Thị Mai (" + countMai + " đơn)", formatMoney(revMai), false));
-        if (countNam > 0) {
-            shiftCard.addView(createKeyValueRow("🧑‍💼 Ca Tối • Lê Hoàng Nam (" + countNam + " đơn)", formatMoney(revNam), false));
-        }
-
-        TextView tvSvcSummary = createMintNote(isWeekMode
-                ? ("📦 Tổng doanh thu nước & phụ kiện 7 ngày: " + formatMoney(dispDichVu))
-                : ("📦 Hàng bán ra trong ngày: " + activeDay.tomTatDichVuBanRa));
-        tvSvcSummary.setBackgroundResource(R.drawable.bg_note_mint);
-        shiftCard.addView(tvSvcSummary);
-        containerDynamicBody.addView(shiftCard);
-
-        // ==================== 5. SỔ CÁI HÓA ĐƠN CHI TIẾT TRONG NGÀY ====================
-        containerDynamicBody.addView(createSectionHeading(isWeekMode
-                ? ("Sổ cái hóa đơn 7 ngày (" + dispInvoices.size() + " đơn)")
-                : ("Chi tiết hóa đơn ngày " + activeDay.ngayDayDu + " (" + dispInvoices.size() + " đơn)")));
-
-        // Bộ lọc nhanh theo loại thu trên sổ cái
         LinearLayout filterRow = new LinearLayout(this);
         filterRow.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams filterLp = new LinearLayout.LayoutParams(
@@ -1265,12 +1102,42 @@ public class DaviesArenaActivity extends AppCompatActivity {
     }
 
     /**
-     * Tab 1 Admin: Bảng xếp hạng nhân viên + Lịch sử đánh giá khách hàng (Giống hệt Ảnh 10 + bấm xem KPI & xử lý khiếu nại)
+     * Tab 1 Admin: Bảng xếp hạng nhân viên + Xếp ca làm việc cho nhân viên
      */
     private void renderAdminLeaderboardTab() {
-        tvHeaderTitle.setText("Bảng xếp hạng");
-        tvHeaderSub.setText("Nhân viên theo số sao trung bình");
+        tvHeaderTitle.setText(adminStaffSubTab == 0 ? "Bảng xếp hạng" : "Xếp ca nhân viên");
+        tvHeaderSub.setText(adminStaffSubTab == 0
+                ? "Nhân viên theo số sao trung bình & Xếp ca"
+                : "Phân công Ca Sáng • Ca Chiều • Ca Tối trong tuần");
         tvHeaderGlass.setVisibility(View.GONE);
+
+        // Thanh chuyển đổi 2 chế độ: [🏆 Bảng xếp hạng] | [📅 Xếp ca nhân viên]
+        LinearLayout switchCard = createWhiteCard();
+        switchCard.setPadding(dp(8), dp(8), dp(8), dp(8));
+        LinearLayout switchRow = new LinearLayout(this);
+        switchRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        switchRow.addView(createQuickFilterChip("🏆 Bảng xếp hạng", adminStaffSubTab == 0, true, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adminStaffSubTab = 0;
+                renderScreen();
+            }
+        }));
+        switchRow.addView(createQuickFilterChip("📅 Xếp ca nhân viên", adminStaffSubTab == 1, false, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adminStaffSubTab = 1;
+                renderScreen();
+            }
+        }));
+        switchCard.addView(switchRow);
+        containerDynamicBody.addView(switchCard);
+
+        if (adminStaffSubTab == 1) {
+            renderAdminShiftScheduleSection();
+            return;
+        }
 
         ArrayList<NhanVienUyTin> sorted = new ArrayList<>(DataStore.listNhanVien);
         Collections.sort(sorted, new Comparator<NhanVienUyTin>() {
@@ -1330,9 +1197,213 @@ public class DaviesArenaActivity extends AppCompatActivity {
             containerDynamicBody.addView(card);
         }
 
+        // Nút mở nhanh phần Xếp ca ngay dưới danh sách nhân viên
+        AppCompatButton btnGoShift = createPrimaryPillButton("📅 Xếp ca làm việc cho nhân viên");
+        btnGoShift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adminStaffSubTab = 1;
+                renderScreen();
+            }
+        });
+        LinearLayout.LayoutParams shiftBtnLp = (LinearLayout.LayoutParams) btnGoShift.getLayoutParams();
+        shiftBtnLp.bottomMargin = dp(12);
+        btnGoShift.setLayoutParams(shiftBtnLp);
+        containerDynamicBody.addView(btnGoShift);
+
         containerDynamicBody.addView(createSectionHeading("Lịch sử đánh giá khách hàng"));
         for (DataStore.ReviewItem r : DataStore.listReview) {
             containerDynamicBody.addView(buildReviewCardView(r, true));
+        }
+    }
+
+    /**
+     * Giao diện Xếp ca làm việc cho nhân viên (Ca Sáng, Ca Chiều, Ca Tối từ Thứ 2 -> Chủ Nhật)
+     */
+    private void renderAdminShiftScheduleSection() {
+        DataStore.initIfEmpty();
+        final DataStore.ShiftDaySchedule currentShiftDay = DataStore.listLichPhanCa.get(adminSelectedShiftDayIdx);
+
+        // 1. Dãy chọn thứ trong tuần: T2 | T3 | T4 | T5 | T6 | T7 | CN
+        LinearLayout daySelectorCard = createWhiteCard();
+        daySelectorCard.addView(createFieldLabel("Chọn ngày trong tuần để phân ca"));
+
+        LinearLayout daysRow = new LinearLayout(this);
+        daysRow.setOrientation(LinearLayout.HORIZONTAL);
+        daysRow.setPadding(0, dp(4), 0, 0);
+
+        for (int i = 0; i < DataStore.listLichPhanCa.size(); i++) {
+            final int idx = i;
+            DataStore.ShiftDaySchedule s = DataStore.listLichPhanCa.get(i);
+            boolean active = (i == adminSelectedShiftDayIdx);
+
+            TextView tvDayPill = new TextView(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(36), 1f);
+            if (i < 6) lp.rightMargin = dp(5);
+            tvDayPill.setLayoutParams(lp);
+            tvDayPill.setGravity(Gravity.CENTER);
+            tvDayPill.setBackgroundResource(active ? R.drawable.bg_pill_teal : R.drawable.bg_input_field_14);
+            tvDayPill.setText(s.thu);
+            tvDayPill.setTextColor(active ? Color.WHITE : Color.parseColor("#065F46"));
+            tvDayPill.setTextSize(12f);
+            tvDayPill.setTypeface(null, Typeface.BOLD);
+            tvDayPill.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    adminSelectedShiftDayIdx = idx;
+                    renderScreen();
+                }
+            });
+            daysRow.addView(tvDayPill);
+        }
+        daySelectorCard.addView(daysRow);
+        containerDynamicBody.addView(daySelectorCard);
+
+        // 2. Thẻ phân công 3 Ca trực (Ca Sáng, Ca Chiều, Ca Tối) cho ngày đang chọn
+        LinearLayout assignCard = createWhiteCard();
+
+        LinearLayout headerRow = new LinearLayout(this);
+        headerRow.setOrientation(LinearLayout.HORIZONTAL);
+        headerRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView tvTitle = new TextView(this);
+        tvTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        tvTitle.setText("📅 Phân ca: " + currentShiftDay.tenThuDayDu + " (" + currentShiftDay.thu + ")");
+        tvTitle.setTextColor(Color.parseColor("#065F46"));
+        tvTitle.setTextSize(16f);
+        tvTitle.setTypeface(null, Typeface.BOLD);
+        headerRow.addView(tvTitle);
+
+        headerRow.addView(createStatusPill("3 Ca / Ngày", "DA_COC"));
+        assignCard.addView(headerRow);
+
+        final ArrayList<String> staffNames = new ArrayList<>();
+        for (NhanVienUyTin nv : DataStore.listNhanVien) {
+            staffNames.add(nv.getHoTen());
+        }
+
+        int idxSang = Math.max(0, staffNames.indexOf(currentShiftDay.nvCaSang));
+        int idxChieu = Math.max(0, staffNames.indexOf(currentShiftDay.nvCaChieu));
+        int idxToi = Math.max(0, staffNames.indexOf(currentShiftDay.nvCaToi));
+
+        final int[] chosenSang = {idxSang};
+        final int[] chosenChieu = {idxChieu};
+        final int[] chosenToi = {idxToi};
+
+        assignCard.addView(createFieldLabel("🌅 Ca Sáng (06:00 – 12:00) • Mở sân & Thu ngân"));
+        Spinner spSang = createStyledSpinner(staffNames, idxSang, new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                chosenSang[0] = position;
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        assignCard.addView(spSang);
+
+        assignCard.addView(createFieldLabel("☀️ Ca Chiều (12:00 – 17:00) • Duyệt cọc QR & Trực quầy"));
+        Spinner spChieu = createStyledSpinner(staffNames, idxChieu, new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                chosenChieu[0] = position;
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        assignCard.addView(spChieu);
+
+        assignCard.addView(createFieldLabel("🌙 Ca Tối (17:00 – 22:00) • Giờ cao điểm & Chốt sổ"));
+        Spinner spToi = createStyledSpinner(staffNames, idxToi, new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                chosenToi[0] = position;
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        assignCard.addView(spToi);
+
+        assignCard.addView(createFieldLabel("📝 Ghi chú công việc trong ca"));
+        final EditText edtNote = new EditText(this);
+        edtNote.setBackgroundResource(R.drawable.bg_input_field_14);
+        edtNote.setPadding(dp(12), dp(10), dp(12), dp(10));
+        edtNote.setText(currentShiftDay.ghiChuCa);
+        edtNote.setTextColor(Color.parseColor("#1F2937"));
+        edtNote.setTextSize(13.5f);
+        assignCard.addView(edtNote);
+
+        AppCompatButton btnSaveShift = createPrimaryPillButton("💾 Lưu lịch phân ca " + currentShiftDay.tenThuDayDu);
+        btnSaveShift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nvS = staffNames.get(chosenSang[0]);
+                String nvC = staffNames.get(chosenChieu[0]);
+                String nvT = staffNames.get(chosenToi[0]);
+
+                currentShiftDay.nvCaSang = nvS;
+                currentShiftDay.nvCaChieu = nvC;
+                currentShiftDay.nvCaToi = nvT;
+                currentShiftDay.ghiChuCa = edtNote.getText().toString().trim();
+
+                for (NhanVienUyTin nv : DataStore.listNhanVien) {
+                    if (nv.getHoTen().equals(nvS)) {
+                        nv.setChucVu("Ca Sáng (" + currentShiftDay.thu + ")");
+                    } else if (nv.getHoTen().equals(nvC)) {
+                        nv.setChucVu("Ca Chiều (" + currentShiftDay.thu + ")");
+                    } else if (nv.getHoTen().equals(nvT)) {
+                        nv.setChucVu("Ca Tối (" + currentShiftDay.thu + ")");
+                    }
+                }
+
+                renderScreen();
+                Toast.makeText(DaviesArenaActivity.this,
+                        "Đã lưu lịch phân ca " + currentShiftDay.tenThuDayDu + ": Sáng (" + nvS + "), Chiều (" + nvC + "), Tối (" + nvT + ")",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+        assignCard.addView(btnSaveShift);
+        containerDynamicBody.addView(assignCard);
+
+        // 3. Bảng tổng hợp lịch phân ca cả tuần (T2 -> CN)
+        containerDynamicBody.addView(createSectionHeading("Bảng tổng hợp lịch phân ca cả tuần (T2 – CN)"));
+        for (int i = 0; i < DataStore.listLichPhanCa.size(); i++) {
+            final int dayIdx = i;
+            DataStore.ShiftDaySchedule s = DataStore.listLichPhanCa.get(i);
+            LinearLayout sumCard = createWhiteCard();
+
+            LinearLayout top = new LinearLayout(this);
+            top.setOrientation(LinearLayout.HORIZONTAL);
+            top.setGravity(Gravity.CENTER_VERTICAL);
+
+            TextView tvDayTitle = new TextView(this);
+            tvDayTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            tvDayTitle.setText(s.tenThuDayDu + " (" + s.thu + ")");
+            tvDayTitle.setTextColor(Color.parseColor("#065F46"));
+            tvDayTitle.setTextSize(15f);
+            tvDayTitle.setTypeface(null, Typeface.BOLD);
+            top.addView(tvDayTitle);
+
+            top.addView(createStatusPill(i == adminSelectedShiftDayIdx ? "Đang chọn" : "Chạm để sửa",
+                    i == adminSelectedShiftDayIdx ? "DA_COC" : "HOAN_THANH"));
+            sumCard.addView(top);
+
+            sumCard.addView(createKeyValueRow("🌅 Ca Sáng (06:00 – 12:00)", s.nvCaSang, false));
+            sumCard.addView(createKeyValueRow("☀️ Ca Chiều (12:00 – 17:00)", s.nvCaChieu, false));
+            sumCard.addView(createKeyValueRow("🌙 Ca Tối (17:00 – 22:00)", s.nvCaToi, false));
+
+            if (s.ghiChuCa != null && !s.ghiChuCa.isEmpty()) {
+                sumCard.addView(createMintNote("📌 " + s.ghiChuCa));
+            }
+
+            sumCard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    adminSelectedShiftDayIdx = dayIdx;
+                    renderScreen();
+                }
+            });
+
+            containerDynamicBody.addView(sumCard);
         }
     }
 
@@ -2051,43 +2122,24 @@ public class DaviesArenaActivity extends AppCompatActivity {
     }
 
     private void showAdminRevenueDetailModal() {
-        DataStore.getTodayRevenueRecord();
-        boolean isWeek = (adminSelectedDayIndex == -1);
-        int coc = 0, quay = 0, dv = 0, done = 0;
-        String titleLabel;
-
-        if (isWeek) {
-            titleLabel = "Bảng kê đối soát 7 ngày (09/11 – 15/11)";
-            for (DataStore.DailyRevenueRecord d : DataStore.listDoanhThu7Ngay) {
-                coc += d.tienCocQR;
-                quay += d.tienTaiQuay;
-                dv += d.tienDichVu;
-                done += d.soDonHoanThanh;
-            }
-        } else {
-            DataStore.DailyRevenueRecord d = DataStore.listDoanhThu7Ngay.get(adminSelectedDayIndex);
-            titleLabel = "Đối soát " + d.thu + ", ngày " + d.ngayDayDu;
-            coc = d.tienCocQR;
-            quay = d.tienTaiQuay;
-            dv = d.tienDichVu;
-            done = d.soDonHoanThanh;
-        }
+        DataStore.DailyRevenueRecord d = DataStore.getRevenueRecordForDate(
+                adminSelectedDay, adminSelectedMonth, adminSelectedYear);
 
         LinearLayout root = createModalContainer();
-        root.addView(createModalTitle(titleLabel));
+        root.addView(createModalTitle("Doanh thu " + d.thu + ", ngày " + d.ngayDayDu));
 
         LinearLayout mintBox = new LinearLayout(this);
         mintBox.setOrientation(LinearLayout.VERTICAL);
         mintBox.setBackgroundResource(R.drawable.bg_note_mint);
         mintBox.setPadding(dp(14), dp(12), dp(14), dp(12));
-        mintBox.addView(createKeyValueRow("Tiền cọc 30% qua VietQR", formatMoney(coc), false));
-        mintBox.addView(createKeyValueRow("Tiền sân thu thêm tại quầy", formatMoney(quay), false));
-        mintBox.addView(createKeyValueRow("Doanh thu nước & phụ kiện", formatMoney(dv), false));
-        mintBox.addView(createKeyValueRow("Số đơn đã hoàn thành", done + " đơn", false));
-        mintBox.addView(createKeyValueRow("TỔNG DOANH THU", formatMoney(coc + quay + dv), true));
+        mintBox.addView(createKeyValueRow("Tiền cọc 30% qua VietQR", formatMoney(d.tienCocQR), false));
+        mintBox.addView(createKeyValueRow("Tiền sân thu thêm tại quầy", formatMoney(d.tienTaiQuay), false));
+        mintBox.addView(createKeyValueRow("Doanh thu nước & phụ kiện", formatMoney(d.tienDichVu), false));
+        mintBox.addView(createKeyValueRow("Số đơn đã hoàn thành", d.soDonHoanThanh + " đơn", false));
+        mintBox.addView(createKeyValueRow("TỔNG DOANH THU", formatMoney(d.getTongDoanhThu()), true));
         root.addView(mintBox);
 
-        root.addView(createMintNote("Chạm vào từng cột ngày (09/11 – 15/11) trên biểu đồ hoặc chọn Lịch để chuyển đổi ngày đối soát."));
+        root.addView(createMintNote("Sử dụng thanh chọn ngày hoặc lịch DatePicker để xem doanh thu & hóa đơn từ ngày 01/11 đến 30/11/2026."));
 
         final AlertDialog dlg = new AlertDialog.Builder(this).setView(root).create();
         AppCompatButton btnClose = createPrimaryPillButton("Đóng bảng kê");
@@ -2105,19 +2157,17 @@ public class DaviesArenaActivity extends AppCompatActivity {
         DatePickerDialog dlg = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                // Map ngày 09/11 -> 15/11 vào index 0..6, nếu chọn ngày khác thì map theo thứ trong tuần
-                if (month == 10 && dayOfMonth >= 9 && dayOfMonth <= 15) {
-                    adminSelectedDayIndex = dayOfMonth - 9;
-                } else {
-                    adminSelectedDayIndex = Math.abs(dayOfMonth) % 7;
-                }
-                DataStore.DailyRevenueRecord rec = DataStore.listDoanhThu7Ngay.get(adminSelectedDayIndex);
+                adminSelectedDay = dayOfMonth;
+                adminSelectedMonth = month + 1;
+                adminSelectedYear = year;
+                DataStore.DailyRevenueRecord rec = DataStore.getRevenueRecordForDate(
+                        adminSelectedDay, adminSelectedMonth, adminSelectedYear);
                 renderScreen();
                 Toast.makeText(DaviesArenaActivity.this,
-                        "Đã chọn ngày " + rec.thu + ", " + rec.ngayDayDu,
+                        "Đang xem doanh thu " + rec.thu + ", ngày " + rec.ngayDayDu,
                         Toast.LENGTH_SHORT).show();
             }
-        }, 2026, 10, adminSelectedDayIndex >= 0 ? (9 + adminSelectedDayIndex) : 15);
+        }, adminSelectedYear, adminSelectedMonth - 1, adminSelectedDay);
         dlg.show();
     }
 

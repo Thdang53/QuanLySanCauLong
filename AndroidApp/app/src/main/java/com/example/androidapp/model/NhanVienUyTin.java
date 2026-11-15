@@ -22,6 +22,7 @@ public class NhanVienUyTin {
     public int getId() { return id; }
     public String getHoTen() { return hoTen; }
     public String getChucVu() { return chucVu; }
+    public void setChucVu(String chucVu) { this.chucVu = chucVu; }
     public int getTongSao() { return tongSao; }
     public int getSoLuotDanhGia() { return soLuotDanhGia; }
     public String getNhanXetGanNhat() { return nhanXetGanNhat; }

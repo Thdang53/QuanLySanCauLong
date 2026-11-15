@@ -1,11 +1,14 @@
 package com.example.androidapp.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Dữ liệu đồng bộ với 7 bảng trong SQL Server (.\SQLEXPRESS -> BadmintonDB)
- * và khớp 100% với bộ giao diện chuẩn 3 Role (Khách hàng, Nhân viên, Chủ sân),
- * bổ sung lịch sử doanh thu & sổ cái hóa đơn chi tiết 7 ngày (09/11/2026 - 15/11/2026).
+ * và có đầy đủ dữ liệu doanh thu + hóa đơn chi tiết xuyên suốt từ đầu tháng (01/11/2026 - 30/11/2026)
+ * cùng hệ thống Xếp ca làm việc cho nhân viên.
  */
 public class DataStore {
     public static ArrayList<SanCauLong> listSan = new ArrayList<>();
@@ -13,12 +16,17 @@ public class DataStore {
     public static ArrayList<DichVuKho> listDichVu = new ArrayList<>();
     public static ArrayList<NhanVienUyTin> listNhanVien = new ArrayList<>();
     public static ArrayList<ReviewItem> listReview = new ArrayList<>();
-    public static ArrayList<DailyRevenueRecord> listDoanhThu7Ngay = new ArrayList<>();
+
+    // Dữ liệu doanh thu đầy đủ 30 ngày trong tháng 11/2026 (index 0 = ngày 01/11 .. index 29 = ngày 30/11)
+    public static ArrayList<DailyRevenueRecord> listDoanhThuThang = new ArrayList<>();
+    private static final Map<String, DailyRevenueRecord> customDateMap = new HashMap<>();
+
+    // Dữ liệu phân ca làm việc 7 ngày trong tuần (T2 -> CN)
+    public static ArrayList<ShiftDaySchedule> listLichPhanCa = new ArrayList<>();
 
     public static int doanhThuCocQR = 96000;
     public static int doanhThuTaiQuay = 240000;
     public static int doanhThuDichVu = 85000;
-    public static int[] doanhThuTuan = {620, 540, 710, 480, 890, 1250, 421};
     public static long startTimeSan3 = System.currentTimeMillis() - (29 * 60 + 20) * 1000L;
     private static int nextBookingId = 105;
 
@@ -43,7 +51,28 @@ public class DataStore {
     }
 
     /**
-     * Chi tiết từng hóa đơn / giao dịch phát sinh trong ngày để Chủ sân đối soát
+     * Lịch phân ca nhân viên theo từng thứ trong tuần (T2..CN)
+     */
+    public static class ShiftDaySchedule {
+        public String thu;          // "T2" .. "CN"
+        public String tenThuDayDu;  // "Thứ 2" .. "Chủ Nhật"
+        public String nvCaSang;     // 06:00 - 12:00
+        public String nvCaChieu;    // 12:00 - 17:00
+        public String nvCaToi;      // 17:00 - 22:00
+        public String ghiChuCa;
+
+        public ShiftDaySchedule(String thu, String tenThuDayDu, String nvCaSang, String nvCaChieu, String nvCaToi, String ghiChuCa) {
+            this.thu = thu;
+            this.tenThuDayDu = tenThuDayDu;
+            this.nvCaSang = nvCaSang;
+            this.nvCaChieu = nvCaChieu;
+            this.nvCaToi = nvCaToi;
+            this.ghiChuCa = ghiChuCa;
+        }
+    }
+
+    /**
+     * Chi tiết từng hóa đơn phát sinh trong ngày
      */
     public static class HoaDonChiTiet {
         public String maHoaDon;
@@ -85,32 +114,33 @@ public class DataStore {
     }
 
     /**
-     * Bản ghi doanh thu theo từng ngày thực tế (Thứ + Ngày/Tháng/Năm + Danh sách hóa đơn)
+     * Bản ghi doanh thu của 1 ngày cụ thể trong tháng
      */
     public static class DailyRevenueRecord {
-        public int dayIndex;
+        public int dayOfMonth;      // 1..30
+        public int month;           // 11
+        public int year;            // 2026
         public String thu;          // "T2", "T3", ..., "CN"
-        public String ngayNgan;     // "09/11", "10/11", ..., "15/11"
-        public String ngayDayDu;    // "09/11/2026" .. "15/11/2026"
+        public String ngayNgan;     // "01/11" .. "30/11"
+        public String ngayDayDu;    // "01/11/2026" .. "30/11/2026"
         public int tienCocQR;
         public int tienTaiQuay;
         public int tienDichVu;
         public int soDonHoanThanh;
-        public String tomTatDichVuBanRa;
         public ArrayList<HoaDonChiTiet> danhSachHoaDon = new ArrayList<>();
 
-        public DailyRevenueRecord(int dayIndex, String thu, String ngayNgan, String ngayDayDu,
-                                  int tienCocQR, int tienTaiQuay, int tienDichVu,
-                                  int soDonHoanThanh, String tomTatDichVuBanRa) {
-            this.dayIndex = dayIndex;
+        public DailyRevenueRecord(int dayOfMonth, int month, int year, String thu,
+                                  int tienCocQR, int tienTaiQuay, int tienDichVu, int soDonHoanThanh) {
+            this.dayOfMonth = dayOfMonth;
+            this.month = month;
+            this.year = year;
             this.thu = thu;
-            this.ngayNgan = ngayNgan;
-            this.ngayDayDu = ngayDayDu;
+            this.ngayNgan = String.format(Locale.US, "%02d/%02d", dayOfMonth, month);
+            this.ngayDayDu = String.format(Locale.US, "%02d/%02d/%04d", dayOfMonth, month, year);
             this.tienCocQR = tienCocQR;
             this.tienTaiQuay = tienTaiQuay;
             this.tienDichVu = tienDichVu;
             this.soDonHoanThanh = soDonHoanThanh;
-            this.tomTatDichVuBanRa = tomTatDichVuBanRa;
         }
 
         public int getTongDoanhThu() {
@@ -145,12 +175,12 @@ public class DataStore {
         listDichVu.add(new DichVuKho(3, "Quả cầu lông Hải Yến", 20000, "Quả", 100, "🏸"));
         listDichVu.add(new DichVuKho(4, "Thuê vợt Yonex", 30000, "Cây", 15, "🎾"));
 
-        // 4. Bảng DANH_GIA_NHAN_VIEN: 3 nhân viên với điểm sao 4.9, 4.8, 4.2
-        listNhanVien.add(new NhanVienUyTin(1, "Nguyễn Văn Hùng", "Thu ngân Ca Sáng", 98, 20,
+        // 4. Bảng DANH_GIA_NHAN_VIEN: 3 nhân viên
+        listNhanVien.add(new NhanVienUyTin(1, "Nguyễn Văn Hùng", "Ca Sáng (06:00 - 12:00)", 98, 20,
                 "Anh Hùng hỗ trợ rất nhiệt tình, sân sạch.", 5));
-        listNhanVien.add(new NhanVienUyTin(2, "Trần Thị Mai", "Thu ngân Ca Chiều", 72, 15,
+        listNhanVien.add(new NhanVienUyTin(2, "Trần Thị Mai", "Ca Chiều (12:00 - 17:00)", 72, 15,
                 "Chị Mai vui vẻ, dễ thương.", 5));
-        listNhanVien.add(new NhanVienUyTin(3, "Lê Hoàng Nam", "Nhân viên Hỗ trợ Ca Tối", 42, 10,
+        listNhanVien.add(new NhanVienUyTin(3, "Lê Hoàng Nam", "Ca Tối (17:00 - 22:00)", 42, 10,
                 "Nhân viên làm thủ tục chậm, phải chờ 15 phút.", 2));
 
         // 5. Danh sách lời khen & góp ý chi tiết
@@ -167,144 +197,191 @@ public class DataStore {
                 "Nhân viên làm thủ tục chậm, phải chờ 15 phút.",
                 new String[]{}));
 
-        // 6. Khởi tạo lịch sử doanh thu 7 ngày (09/11/2026 - 15/11/2026) khớp 100% biểu đồ
-        initRevenueHistory7Days();
+        // 6. Khởi tạo lịch phân ca nhân viên 7 ngày trong tuần
+        initShiftSchedules();
+
+        // 7. Khởi tạo dữ liệu doanh thu & hóa đơn từ đầu tháng 01/11/2026 -> 30/11/2026
+        initFullMonthRevenue();
     }
 
-    private static void initRevenueHistory7Days() {
-        listDoanhThu7Ngay.clear();
+    private static void initShiftSchedules() {
+        listLichPhanCa.clear();
+        listLichPhanCa.add(new ShiftDaySchedule("T2", "Thứ Hai", "Nguyễn Văn Hùng", "Trần Thị Mai", "Lê Hoàng Nam", "Kiểm kê kho nước đầu tuần"));
+        listLichPhanCa.add(new ShiftDaySchedule("T3", "Thứ Ba", "Nguyễn Văn Hùng", "Trần Thị Mai", "Lê Hoàng Nam", "Trực chuẩn giờ cao điểm tối"));
+        listLichPhanCa.add(new ShiftDaySchedule("T4", "Thứ Tư", "Trần Thị Mai", "Nguyễn Văn Hùng", "Lê Hoàng Nam", "Đổi ca sáng - chiều định kỳ"));
+        listLichPhanCa.add(new ShiftDaySchedule("T5", "Thứ Năm", "Nguyễn Văn Hùng", "Lê Hoàng Nam", "Trần Thị Mai", "Vệ sinh thảm Sân 1 - Sân 3"));
+        listLichPhanCa.add(new ShiftDaySchedule("T6", "Thứ Sáu", "Nguyễn Văn Hùng", "Trần Thị Mai", "Lê Hoàng Nam", "Tăng cường hỗ trợ khách đặt cọc"));
+        listLichPhanCa.add(new ShiftDaySchedule("T7", "Thứ Bảy", "Trần Thị Mai", "Nguyễn Văn Hùng", "Lê Hoàng Nam", "Cuối tuần đông khách - trực 100%"));
+        listLichPhanCa.add(new ShiftDaySchedule("CN", "Chủ Nhật", "Nguyễn Văn Hùng", "Trần Thị Mai", "Lê Hoàng Nam", "Chốt sổ doanh thu tuần lúc 22:00"));
+    }
 
-        // Ngày 0: T2 - 09/11/2026 (Tổng 620.000đ = Cọc 144k + Quầy 336k + Dịch vụ 140k)
-        DailyRevenueRecord d0 = new DailyRevenueRecord(0, "T2", "09/11", "09/11/2026",
-                144000, 336000, 140000, 3,
-                "💧 5 Nước suối (50k) • 🏸 3 Cầu Hải Yến (60k) • 🎾 1 Thuê vợt (30k)");
-        d0.danhSachHoaDon.add(new HoaDonChiTiet("HD-0911-01", "09/11/2026", "Sân 1", "07:00 - 09:00 (2 giờ)",
-                "Lê Minh Tuấn", "0912345678", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 112000, 50000, "2× Nước suối Aquafina, 1× Thuê vợt Yonex", "HOAN_THANH"));
-        d0.danhSachHoaDon.add(new HoaDonChiTiet("HD-0911-02", "09/11/2026", "Sân 3", "17:00 - 19:00 (2 giờ)",
-                "Phạm Gia Huy", "0938112233", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 60000, "3× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        d0.danhSachHoaDon.add(new HoaDonChiTiet("HD-0911-03", "09/11/2026", "Sân 4", "19:00 - 21:00 (2 giờ)",
-                "Hoàng Đức Thịnh", "0977889900", "Lê Hoàng Nam", "Ca Tối",
-                48000, 112000, 30000, "3× Nước suối Aquafina", "HOAN_THANH"));
-        listDoanhThu7Ngay.add(d0);
+    private static void initFullMonthRevenue() {
+        listDoanhThuThang.clear();
 
-        // Ngày 1: T3 - 10/11/2026 (Tổng 540.000đ = Cọc 120k + Quầy 280k + Dịch vụ 140k)
-        DailyRevenueRecord d1 = new DailyRevenueRecord(1, "T3", "10/11", "10/11/2026",
-                120000, 280000, 140000, 3,
-                "🍋 4 Revive (60k) • 🏸 4 Cầu Hải Yến (80k)");
-        d1.danhSachHoaDon.add(new HoaDonChiTiet("HD-1011-01", "10/11/2026", "Sân 2", "08:00 - 10:00 (2 giờ)",
-                "Nguyễn Minh Anh", "0905123456", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 112000, 60000, "4× Nước chanh muối Revive", "HOAN_THANH"));
-        d1.danhSachHoaDon.add(new HoaDonChiTiet("HD-1011-02", "10/11/2026", "Sân 5", "18:00 - 20:00 (2 giờ)",
-                "Trần Quốc Bảo", "0987654321", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        d1.danhSachHoaDon.add(new HoaDonChiTiet("HD-1011-03", "10/11/2026", "Sân 1", "20:00 - 21:00 (1 giờ)",
-                "Đặng Thu Hà", "0966554433", "Lê Hoàng Nam", "Ca Tối",
-                24000, 56000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        listDoanhThu7Ngay.add(d1);
+        // Tổng doanh thu từng ngày (nghìn đồng) từ 01/11/2026 -> 30/11/2026
+        // Đặc biệt ngày 09/11 -> 15/11 khớp 100% với mẫu: 620, 540, 710, 480, 890, 1250, 421
+        int[] dailyTotalsK = {
+                950,  // 01/11 (CN)
+                580,  // 02/11 (T2)
+                510,  // 03/11 (T3)
+                640,  // 04/11 (T4)
+                490,  // 05/11 (T5)
+                780,  // 06/11 (T6)
+                1120, // 07/11 (T7)
+                980,  // 08/11 (CN)
+                620,  // 09/11 (T2)
+                540,  // 10/11 (T3)
+                710,  // 11/11 (T4)
+                480,  // 12/11 (T5)
+                890,  // 13/11 (T6)
+                1250, // 14/11 (T7)
+                421,  // 15/11 (CN - Hôm nay)
+                660,  // 16/11 (T2)
+                590,  // 17/11 (T3)
+                730,  // 18/11 (T4)
+                520,  // 19/11 (T5)
+                840,  // 20/11 (T6)
+                1180, // 21/11 (T7)
+                920,  // 22/11 (CN)
+                610,  // 23/11 (T2)
+                560,  // 24/11 (T3)
+                690,  // 25/11 (T4)
+                500,  // 26/11 (T5)
+                870,  // 27/11 (T6)
+                1210, // 28/11 (T7)
+                960,  // 29/11 (CN)
+                640   // 30/11 (T2)
+        };
 
-        // Ngày 2: T4 - 11/11/2026 (Tổng 710.000đ = Cọc 168k + Quầy 392k + Dịch vụ 150k)
-        DailyRevenueRecord d2 = new DailyRevenueRecord(2, "T4", "11/11", "11/11/2026",
-                168000, 392000, 150000, 4,
-                "💧 6 Nước suối (60k) • 🍋 2 Revive (30k) • 🎾 2 Thuê vợt (60k)");
-        d2.danhSachHoaDon.add(new HoaDonChiTiet("HD-1111-01", "11/11/2026", "Sân 1", "06:00 - 08:00 (2 giờ)",
-                "Võ Thành Đạt", "0919223344", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 112000, 40000, "4× Nước suối Aquafina", "HOAN_THANH"));
-        d2.danhSachHoaDon.add(new HoaDonChiTiet("HD-1111-02", "11/11/2026", "Sân 2", "09:00 - 11:00 (2 giờ)",
-                "Ngô Bảo Châu", "0908776655", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 112000, 30000, "2× Nước chanh muối Revive", "HOAN_THANH"));
-        d2.danhSachHoaDon.add(new HoaDonChiTiet("HD-1111-03", "11/11/2026", "Sân 3", "17:00 - 19:00 (2 giờ)",
-                "Bùi Anh Quân", "0944556677", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 60000, "2× Thuê vợt Yonex", "HOAN_THANH"));
-        d2.danhSachHoaDon.add(new HoaDonChiTiet("HD-1111-04", "11/11/2026", "Sân 4", "19:00 - 20:00 (1 giờ)",
-                "Phan Thanh Hải", "0933445566", "Lê Hoàng Nam", "Ca Tối",
-                24000, 56000, 20000, "2× Nước suối Aquafina", "HOAN_THANH"));
-        listDoanhThu7Ngay.add(d2);
+        String[] thuCycle = {"CN", "T2", "T3", "T4", "T5", "T6", "T7"}; // 01/11/2026 là Chủ Nhật
+        String[] sampleCustomers = {
+                "Nguyễn Minh Khang", "Trần Quốc Bảo", "Lê Minh Tuấn", "Phạm Gia Huy",
+                "Hoàng Đức Thịnh", "Võ Thành Đạt", "Ngô Bảo Châu", "Bùi Anh Quân",
+                "Đặng Thu Hà", "Phan Thanh Hải", "Đỗ Hoàng Phúc", "Lương Thế Vinh"
+        };
+        String[] samplePhones = {
+                "0901234567", "0987654321", "0912345678", "0938112233",
+                "0977889900", "0919223344", "0908776655", "0944556677",
+                "0966554433", "0933445566", "0918765432", "0972334455"
+        };
+        String[] sampleServices = {
+                "2× Nước suối Aquafina, 1× Cầu Hải Yến",
+                "2× Nước chanh muối Revive",
+                "3× Quả cầu lông Hải Yến",
+                "1× Thuê vợt Yonex, 2× Nước suối Aquafina",
+                "4× Nước suối Aquafina"
+        };
 
-        // Ngày 3: T5 - 12/11/2026 (Tổng 480.000đ = Cọc 120k + Quầy 280k + Dịch vụ 80k)
-        DailyRevenueRecord d3 = new DailyRevenueRecord(3, "T5", "12/11", "12/11/2026",
-                120000, 280000, 80000, 2,
-                "💧 4 Nước suối (40k) • 🏸 2 Cầu Hải Yến (40k)");
-        d3.danhSachHoaDon.add(new HoaDonChiTiet("HD-1211-01", "12/11/2026", "Sân 2", "08:00 - 11:00 (3 giờ)",
-                "CLB Cầu Lông Sao Mai", "0901998877", "Nguyễn Văn Hùng", "Ca Sáng",
-                72000, 168000, 40000, "4× Nước suối Aquafina", "HOAN_THANH"));
-        d3.danhSachHoaDon.add(new HoaDonChiTiet("HD-1211-02", "12/11/2026", "Sân 5", "18:00 - 20:00 (2 giờ)",
-                "Lương Thế Vinh", "0972334455", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        listDoanhThu7Ngay.add(d3);
+        for (int day = 1; day <= 30; day++) {
+            String thu = thuCycle[(day - 1) % 7];
+            int total = dailyTotalsK[day - 1] * 1000;
 
-        // Ngày 4: T6 - 13/11/2026 (Tổng 890.000đ = Cọc 216k + Quầy 504k + Dịch vụ 170k)
-        DailyRevenueRecord d4 = new DailyRevenueRecord(4, "T6", "13/11", "13/11/2026",
-                216000, 504000, 170000, 4,
-                "🍋 6 Revive (90k) • 🏸 4 Cầu Hải Yến (80k)");
-        d4.danhSachHoaDon.add(new HoaDonChiTiet("HD-1311-01", "13/11/2026", "Sân 1", "07:00 - 09:00 (2 giờ)",
-                "Nguyễn Minh Khang", "0901234567", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 112000, 45000, "3× Nước chanh muối Revive", "HOAN_THANH"));
-        d4.danhSachHoaDon.add(new HoaDonChiTiet("HD-1311-02", "13/11/2026", "Sân 2", "16:00 - 18:00 (2 giờ)",
-                "Đỗ Hoàng Phúc", "0918765432", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 45000, "3× Nước chanh muối Revive", "HOAN_THANH"));
-        d4.danhSachHoaDon.add(new HoaDonChiTiet("HD-1311-03", "13/11/2026", "Sân 3", "18:00 - 21:00 (3 giờ)",
-                "Nhóm Giao Lưu Quận 7", "0909112233", "Trần Thị Mai", "Ca Chiều",
-                72000, 168000, 60000, "3× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        d4.danhSachHoaDon.add(new HoaDonChiTiet("HD-1311-04", "13/11/2026", "Sân 4", "19:00 - 21:00 (2 giờ)",
-                "Trương Tuấn Kiệt", "0988776611", "Lê Hoàng Nam", "Ca Tối",
-                48000, 112000, 20000, "1× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        listDoanhThu7Ngay.add(d4);
+            if (day == 15) {
+                // Ngày 15/11/2026 (Hôm nay): Khớp chính xác 96.000đ + 240.000đ + 85.000đ = 421.000đ
+                DailyRevenueRecord d15 = new DailyRevenueRecord(15, 11, 2026, "CN",
+                        doanhThuCocQR, doanhThuTaiQuay, doanhThuDichVu, 2);
+                d15.danhSachHoaDon.add(new HoaDonChiTiet("HD-1511-01", "15/11/2026", "Sân 4", "08:00 - 10:00 (2 giờ)",
+                        "Nguyễn Minh Khang", "0901234567", "Nguyễn Văn Hùng", "Ca Sáng",
+                        48000, 112000, 15000, "1× Nước chanh muối Revive", "HOAN_THANH"));
+                d15.danhSachHoaDon.add(new HoaDonChiTiet("HD-1511-02", "15/11/2026", "Sân 1", "10:00 - 12:00 (2 giờ)",
+                        "Lê Minh Tuấn", "0912345678", "Nguyễn Văn Hùng", "Ca Sáng",
+                        0, 128000, 70000, "2× Nước suối, 1× Cầu Hải Yến, 1× Thuê vợt", "HOAN_THANH"));
+                d15.danhSachHoaDon.add(new HoaDonChiTiet("HD-1511-03", "15/11/2026", "Sân 2", "19:00 - 21:00 (2 giờ)",
+                        "Nguyễn Minh Khang", "0901234567", "Trần Thị Mai", "Ca Chiều",
+                        48000, 0, 0, "Đã cọc 30% qua VietQR", "DA_COC"));
+                listDoanhThuThang.add(d15);
+                continue;
+            }
 
-        // Ngày 5: T7 - 14/11/2026 (Tổng 1.250.000đ = Cọc 288k + Quầy 672k + Dịch vụ 290k)
-        DailyRevenueRecord d5 = new DailyRevenueRecord(5, "T7", "14/11", "14/11/2026",
-                288000, 672000, 290000, 5,
-                "💧 8 Nước suối (80k) • 🍋 6 Revive (90k) • 🏸 6 Cầu Hải Yến (120k)");
-        d5.danhSachHoaDon.add(new HoaDonChiTiet("HD-1411-01", "14/11/2026", "Sân 1", "07:00 - 10:00 (3 giờ)",
-                "Giải Nội Bộ Công Ty FPT", "0903445566", "Nguyễn Văn Hùng", "Ca Sáng",
-                72000, 168000, 80000, "8× Nước suối Aquafina", "HOAN_THANH"));
-        d5.danhSachHoaDon.add(new HoaDonChiTiet("HD-1411-02", "14/11/2026", "Sân 2", "08:00 - 11:00 (3 giờ)",
-                "Giải Nội Bộ Công Ty FPT", "0903445566", "Nguyễn Văn Hùng", "Ca Sáng",
-                72000, 168000, 90000, "6× Nước chanh muối Revive", "HOAN_THANH"));
-        d5.danhSachHoaDon.add(new HoaDonChiTiet("HD-1411-03", "14/11/2026", "Sân 3", "15:00 - 17:00 (2 giờ)",
-                "Lê Minh Tuấn", "0912345678", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        d5.danhSachHoaDon.add(new HoaDonChiTiet("HD-1411-04", "14/11/2026", "Sân 4", "17:00 - 19:00 (2 giờ)",
-                "Trần Quốc Bảo", "0987654321", "Trần Thị Mai", "Ca Chiều",
-                48000, 112000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        d5.danhSachHoaDon.add(new HoaDonChiTiet("HD-1411-05", "14/11/2026", "Sân 5", "19:00 - 21:00 (2 giờ)",
-                "Vũ Hoàng Long", "0971223344", "Lê Hoàng Nam", "Ca Tối",
-                48000, 112000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
-        listDoanhThu7Ngay.add(d5);
+            // Tính toán 3 khoản thu khớp 100% tổng tiền ngày đó
+            int numInvoices = (total >= 900000) ? 4 : 3;
+            int cocTotal = (numInvoices * 48000);
+            int quayTotal = (numInvoices * 112000);
+            int dvTotal = Math.max(20000, total - cocTotal - quayTotal);
+            // Điều chỉnh tiền quầy để cocTotal + quayTotal + dvTotal == total tuyệt đối
+            quayTotal = total - cocTotal - dvTotal;
 
-        // Ngày 6 (Hôm nay): CN - 15/11/2026 (Tổng 421.000đ = Cọc 96k + Quầy 240k + Dịch vụ 85k)
-        DailyRevenueRecord d6 = new DailyRevenueRecord(6, "CN", "15/11", "15/11/2026",
-                doanhThuCocQR, doanhThuTaiQuay, doanhThuDichVu, 1,
-                "💧 2 Nước suối (20k) • 🍋 1 Revive (15k) • 🏸 1 Cầu Hải Yến (20k) • 🎾 1 Thuê vợt (30k)");
-        d6.danhSachHoaDon.add(new HoaDonChiTiet("HD-1511-01", "15/11/2026", "Sân 4", "08:00 - 10:00 (2 giờ)",
-                "Nguyễn Minh Khang", "0901234567", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 112000, 15000, "1× Nước chanh muối Revive", "HOAN_THANH"));
-        d6.danhSachHoaDon.add(new HoaDonChiTiet("HD-1511-02", "15/11/2026", "Sân 1", "10:00 - 12:00 (2 giờ)",
-                "Khách vãng lai Ca Sáng", "0915889900", "Nguyễn Văn Hùng", "Ca Sáng",
-                0, 128000, 70000, "2× Nước suối, 1× Cầu Hải Yến, 1× Thuê vợt", "HOAN_THANH"));
-        d6.danhSachHoaDon.add(new HoaDonChiTiet("HD-1511-03", "15/11/2026", "Sân 2", "19:00 - 21:00 (2 giờ)",
-                "Nguyễn Minh Khang", "0901234567", "Nguyễn Văn Hùng", "Ca Sáng",
-                48000, 0, 0, "Chưa phát sinh dịch vụ (Đã cọc 30%)", "DA_COC"));
-        listDoanhThu7Ngay.add(d6);
+            DailyRevenueRecord rec = new DailyRevenueRecord(day, 11, 2026, thu,
+                    cocTotal, quayTotal, dvTotal, numInvoices);
+
+            String dateStr = String.format(Locale.US, "%02d/11/2026", day);
+            String codePrefix = String.format(Locale.US, "HD-%02d11-", day);
+
+            int remCoc = cocTotal;
+            int remQuay = quayTotal;
+            int remDv = dvTotal;
+
+            for (int idx = 1; idx <= numInvoices; idx++) {
+                int c = (idx == numInvoices) ? remCoc : 48000;
+                int q = (idx == numInvoices) ? remQuay : (quayTotal / numInvoices);
+                int dv = (idx == numInvoices) ? remDv : (dvTotal / numInvoices);
+                remCoc -= c;
+                remQuay -= q;
+                remDv -= dv;
+
+                int custIdx = (day * 3 + idx) % sampleCustomers.length;
+                String sanName = "Sân " + (((day + idx) % 5) + 1);
+                String timeSlot = (idx == 1) ? "07:00 - 09:00 (2 giờ)"
+                        : (idx == 2 ? "16:00 - 18:00 (2 giờ)"
+                        : (idx == 3 ? "18:00 - 20:00 (2 giờ)" : "20:00 - 22:00 (2 giờ)"));
+                String cashier = (idx == 1) ? "Nguyễn Văn Hùng"
+                        : (idx == 2 ? "Trần Thị Mai" : "Lê Hoàng Nam");
+                String shift = (idx == 1) ? "Ca Sáng" : (idx == 2 ? "Ca Chiều" : "Ca Tối");
+                String svcDesc = sampleServices[(day + idx) % sampleServices.length];
+
+                rec.danhSachHoaDon.add(new HoaDonChiTiet(
+                        codePrefix + "0" + idx,
+                        dateStr,
+                        sanName,
+                        timeSlot,
+                        sampleCustomers[custIdx],
+                        samplePhones[custIdx],
+                        cashier,
+                        shift,
+                        c, q, dv, svcDesc, "HOAN_THANH"
+                ));
+            }
+
+            listDoanhThuThang.add(rec);
+        }
     }
 
     /**
-     * Đồng bộ doanh thu hôm nay (15/11/2026) mỗi khi có giao dịch mới từ Quầy hoặc QR
+     * Lấy đúng bản ghi doanh thu của bất kỳ ngày/tháng/năm nào mà người dùng chọn (không bao giờ nhảy sai ngày)
      */
-    public static DailyRevenueRecord getTodayRevenueRecord() {
+    public static DailyRevenueRecord getRevenueRecordForDate(int day, int month, int year) {
         initIfEmpty();
-        DailyRevenueRecord today = listDoanhThu7Ngay.get(6);
-        today.tienCocQR = doanhThuCocQR;
-        today.tienTaiQuay = doanhThuTaiQuay;
-        today.tienDichVu = doanhThuDichVu;
-        int done = 0;
-        for (LichDatSan b : listLichDat) {
-            if ("HOAN_THANH".equals(b.getTrangThai())) done++;
+        // Đồng bộ ngày hôm nay 15/11/2026
+        DailyRevenueRecord d15 = listDoanhThuThang.get(14);
+        d15.tienCocQR = doanhThuCocQR;
+        d15.tienTaiQuay = doanhThuTaiQuay;
+        d15.tienDichVu = doanhThuDichVu;
+
+        if (month == 11 && year == 2026 && day >= 1 && day <= listDoanhThuThang.size()) {
+            return listDoanhThuThang.get(day - 1);
         }
-        today.soDonHoanThanh = Math.max(done, 1);
-        doanhThuTuan[6] = today.getTongDoanhThu() / 1000;
-        return today;
+
+        String key = String.format(Locale.US, "%02d/%02d/%04d", day, month, year);
+        if (customDateMap.containsKey(key)) {
+            return customDateMap.get(key);
+        }
+
+        String[] thuCycle = {"CN", "T2", "T3", "T4", "T5", "T6", "T7"};
+        String thu = thuCycle[Math.abs(day) % 7];
+        DailyRevenueRecord custom = new DailyRevenueRecord(day, month, year, thu, 96000, 224000, 80000, 2);
+        String codePrefix = String.format(Locale.US, "HD-%02d%02d-", day, month);
+        custom.danhSachHoaDon.add(new HoaDonChiTiet(codePrefix + "01", key, "Sân 1", "08:00 - 10:00 (2 giờ)",
+                "Nguyễn Minh Khang", "0901234567", "Nguyễn Văn Hùng", "Ca Sáng",
+                48000, 112000, 40000, "4× Nước suối Aquafina", "HOAN_THANH"));
+        custom.danhSachHoaDon.add(new HoaDonChiTiet(codePrefix + "02", key, "Sân 3", "18:00 - 20:00 (2 giờ)",
+                "Trần Quốc Bảo", "0987654321", "Trần Thị Mai", "Ca Chiều",
+                48000, 112000, 40000, "2× Quả cầu lông Hải Yến", "HOAN_THANH"));
+        customDateMap.put(key, custom);
+        return custom;
+    }
+
+    public static DailyRevenueRecord getTodayRevenueRecord() {
+        return getRevenueRecordForDate(15, 11, 2026);
     }
 
     public static int nextId() {
