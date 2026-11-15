@@ -54,34 +54,42 @@ public class TimelineBookingAdapter extends BaseAdapter {
         TextView tvSub = convertView.findViewById(R.id.tvTimelineSub);
 
         tvHour.setText(item.getGioMoc());
-        tvTitle.setText(item.getTenSan() + " • " + item.getTenKhach());
+        tvTitle.setText(item.getTenSan());
+
+        // Tạo hiệu ứng lệch tầng (Staggered Timeline Pills) giống hệt ảnh mẫu giữa
+        float density = context.getResources().getDisplayMetrics().density;
+        int[] offsetsDp = {8, 34, 16, 26};
+        int startMarginPx = (int) (offsetsDp[position % offsetsDp.length] * density);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) boxPill.getLayoutParams();
+        params.setMarginStart(startMarginPx);
+        boxPill.setLayoutParams(params);
 
         String st = item.getTrangThai();
         if ("CHO_DUYET".equals(st)) {
             boxPill.setBackgroundResource(R.drawable.bg_pill_purple);
             tvDot.setTextColor(Color.parseColor("#8B5CF6"));
-            tvBadge.setText("CHỜ DUYỆT CỌC");
-            tvSub.setText("🕒 " + item.getKhungGio() + " • Cọc: " + String.format("%,dđ", item.getTienCoc30()));
+            tvBadge.setText("Chờ duyệt");
+            tvSub.setText("🕒 " + item.getKhungGio());
         } else if ("DA_COC".equals(st)) {
-            boxPill.setBackgroundResource(R.drawable.bg_pill_amber);
-            tvDot.setTextColor(Color.parseColor("#F59E0B"));
-            tvBadge.setText("ĐÃ CỌC 30%");
-            tvSub.setText("🕒 " + item.getKhungGio() + " • Còn lại: " + String.format("%,dđ", item.getTienSan() - item.getTienCoc30()));
+            boxPill.setBackgroundResource(R.drawable.bg_pill_blue);
+            tvDot.setTextColor(Color.parseColor("#2563EB"));
+            tvBadge.setText("Đã cọc");
+            tvSub.setText("🕒 " + item.getKhungGio());
         } else if ("DANG_CHOI".equals(st)) {
             boxPill.setBackgroundResource(R.drawable.bg_pill_coral);
             tvDot.setTextColor(Color.parseColor("#FB7185"));
-            tvBadge.setText("ĐANG CHƠI");
-            tvSub.setText("🥤 Nước/Cầu: " + String.format("%,dđ", item.getTienDichVu()) + " • Bấm để Check-out");
+            tvBadge.setText("Đang chơi");
+            tvSub.setText("🕒 " + item.getKhungGio());
         } else if ("HOAN_THANH".equals(st)) {
             boxPill.setBackgroundResource(R.drawable.bg_pill_teal);
             tvDot.setTextColor(Color.parseColor("#14B8A6"));
-            tvBadge.setText(item.isDaDanhGia() ? "ĐÃ CHẤM SAO ✅" : "⭐ CHẤM SAO NV");
-            tvSub.setText("Thu ngân: " + item.getNhanVienThu() + " • Đã trừ cọc " + String.format("%,dđ", item.getTienCoc30()));
+            tvBadge.setText(item.isDaDanhGia() ? "Đã chấm ★" : "Chấm sao");
+            tvSub.setText("🕒 " + item.getKhungGio());
         } else {
             boxPill.setBackgroundResource(R.drawable.bg_pill_grey);
             tvDot.setTextColor(Color.parseColor("#94A3B8"));
-            tvBadge.setText("ĐÃ HỦY");
-            tvSub.setText("🕒 " + item.getKhungGio() + " • Đã hủy lịch");
+            tvBadge.setText("Đã hủy");
+            tvSub.setText("🕒 " + item.getKhungGio());
         }
 
         return convertView;

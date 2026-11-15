@@ -49,9 +49,9 @@ public class DaviesArenaActivity extends AppCompatActivity {
     private TextView tvNavHome, tvNavTimeline, tvNavProfile;
 
     // Views - Tab 1 (Home)
-    private TextView tvWelcomeUser, tvCurrentRoleBadge, btnAddCourtAdmin, tvBannerCta, btnClearSearch, btnBellNotif, btnGridMenu;
+    private TextView tvWelcomeUser, tvCurrentRoleBadge, btnAddCourtAdmin, btnSeeAllCourts, tvBannerCta, btnClearSearch, btnBellNotif, btnGridMenu;
     private EditText edtSearchCourt;
-    private LinearLayout catCustomer, catStaff, catAdmin, catInventory;
+    private LinearLayout catAllCourts, catFreeCourts, catInventory;
     private ListView listViewSan;
 
     // Views - Tab 2 (Timeline)
@@ -60,7 +60,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
     private ListView listViewTimeline;
 
     // Views - Tab 3 (Profile & Leaderboard)
-    private TextView tvProfileName, tvProfileRoleSub, tvStatRevTotal, tvStatRevCoc, tvStatRevSvc;
+    private TextView tvProfileName, tvProfileRoleSub, tvStatRevTotal, tvStatRevCoc, tvStatRevSvc, btnProfileBack;
     private ListView listViewLeaderboard;
     private Button btnLogoutBack;
 
@@ -113,15 +113,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
         tvCurrentRoleBadge = findViewById(R.id.tvCurrentRoleBadge);
         btnAddCourtAdmin = findViewById(R.id.btnAddCourtAdmin);
+        btnSeeAllCourts = findViewById(R.id.btnSeeAllCourts);
         tvBannerCta = findViewById(R.id.tvBannerCta);
         btnClearSearch = findViewById(R.id.btnClearSearch);
         btnBellNotif = findViewById(R.id.btnBellNotif);
         btnGridMenu = findViewById(R.id.btnGridMenu);
         edtSearchCourt = findViewById(R.id.edtSearchCourt);
 
-        catCustomer = findViewById(R.id.catCustomer);
-        catStaff = findViewById(R.id.catStaff);
-        catAdmin = findViewById(R.id.catAdmin);
+        catAllCourts = findViewById(R.id.catAllCourts);
+        catFreeCourts = findViewById(R.id.catFreeCourts);
         catInventory = findViewById(R.id.catInventory);
         listViewSan = findViewById(R.id.listViewSan);
 
@@ -137,6 +137,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
         tvStatRevTotal = findViewById(R.id.tvStatRevTotal);
         tvStatRevCoc = findViewById(R.id.tvStatRevCoc);
         tvStatRevSvc = findViewById(R.id.tvStatRevSvc);
+        btnProfileBack = findViewById(R.id.btnProfileBack);
         listViewLeaderboard = findViewById(R.id.listViewLeaderboard);
         btnLogoutBack = findViewById(R.id.btnLogoutBack);
     }
@@ -203,33 +204,25 @@ public class DaviesArenaActivity extends AppCompatActivity {
     }
 
     private void setupCategoryActions() {
-        catCustomer.setOnClickListener(new View.OnClickListener() {
+        catAllCourts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentRole = "CUSTOMER";
-                currentUserName = "Khách Hàng";
-                applyRoleUI();
-                Toast.makeText(DaviesArenaActivity.this, "Đã chuyển sang vai trò: Khách hàng", Toast.LENGTH_SHORT).show();
+                edtSearchCourt.setText("");
+                filterCourts("");
             }
         });
 
-        catStaff.setOnClickListener(new View.OnClickListener() {
+        catFreeCourts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentRole = "STAFF";
-                currentUserName = "Nhân Viên";
-                applyRoleUI();
-                Toast.makeText(DaviesArenaActivity.this, "Đã chuyển sang vai trò: Nhân viên trực quầy", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        catAdmin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                currentRole = "ADMIN";
-                currentUserName = "Quản Lý Sân";
-                applyRoleUI();
-                Toast.makeText(DaviesArenaActivity.this, "Đã chuyển sang vai trò: Quản lý sân (Admin)", Toast.LENGTH_SHORT).show();
+                filteredSanList.clear();
+                for (SanCauLong san : DataStore.listSan) {
+                    if ("TRONG".equals(san.getTrangThai())) {
+                        filteredSanList.add(san);
+                    }
+                }
+                sanAdapter.notifyDataSetChanged();
+                Toast.makeText(DaviesArenaActivity.this, "Đang lọc các sân trống", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -237,6 +230,21 @@ public class DaviesArenaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showInventoryDialog();
+            }
+        });
+
+        btnSeeAllCourts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                edtSearchCourt.setText("");
+                filterCourts("");
+            }
+        });
+
+        btnProfileBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchTab(1);
             }
         });
 
@@ -332,20 +340,20 @@ public class DaviesArenaActivity extends AppCompatActivity {
     }
 
     private void applyRoleUI() {
-        tvWelcomeUser.setText("Xin chào, " + currentUserName);
+        tvWelcomeUser.setText("Chào, " + currentUserName);
         tvProfileName.setText(currentUserName);
 
         if ("CUSTOMER".equals(currentRole)) {
-            tvCurrentRoleBadge.setText("Vai trò: Khách hàng");
-            tvProfileRoleSub.setText("Davies Arena • Khách hàng");
+            tvCurrentRoleBadge.setText("Khách hàng");
+            tvProfileRoleSub.setText("📍 Davies Arena • Khách hàng");
             btnAddCourtAdmin.setVisibility(View.GONE);
         } else if ("STAFF".equals(currentRole)) {
-            tvCurrentRoleBadge.setText("Vai trò: Nhân viên");
-            tvProfileRoleSub.setText("Davies Arena • Nhân viên trực quầy");
+            tvCurrentRoleBadge.setText("Nhân viên");
+            tvProfileRoleSub.setText("📍 Davies Arena • Nhân viên");
             btnAddCourtAdmin.setVisibility(View.GONE);
         } else {
-            tvCurrentRoleBadge.setText("Vai trò: Quản lý");
-            tvProfileRoleSub.setText("Davies Arena • Quản lý sân");
+            tvCurrentRoleBadge.setText("Quản lý");
+            tvProfileRoleSub.setText("📍 Davies Arena • Quản lý");
             btnAddCourtAdmin.setVisibility(View.VISIBLE);
         }
     }
@@ -930,10 +938,10 @@ public class DaviesArenaActivity extends AppCompatActivity {
             else if ("DANG_CHOI".equals(s.getTrangThai())) cPlaying++;
             else cMaint++;
         }
-        tvStatFree.setText("🟢 Trống: " + cFree);
-        tvStatBooked.setText("🟡 Cọc: " + cBooked);
-        tvStatPlaying.setText("🔴 Chơi: " + cPlaying);
-        tvStatMaint.setText("⚪ Bảo trì: " + cMaint);
+        tvStatFree.setText("Trống: " + cFree);
+        tvStatBooked.setText("Đã cọc: " + cBooked);
+        tvStatPlaying.setText("Đang chơi: " + cPlaying);
+        tvStatMaint.setText("Bảo trì: " + cMaint);
 
         tvStatRevTotal.setText(String.format("%,dk", DataStore.getTongDoanhThu() / 1000));
         tvStatRevCoc.setText(String.format("%,dk", DataStore.doanhThuCocQR / 1000));

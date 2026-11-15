@@ -1,6 +1,7 @@
 package com.example.androidapp.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,19 +55,20 @@ public class LeaderboardAdapter extends BaseAdapter {
         ProgressBar pb = convertView.findViewById(R.id.pbStaffRating);
 
         String[] medals = {"🥇", "🥈", "🥉"};
-        tvMedal.setText(position < medals.length ? medals[position] : "⭐");
+        tvMedal.setText(position < medals.length ? medals[position] : "★");
 
-        tvName.setText(nv.getHoTen() + " (" + nv.getSoLuotDanhGia() + " lượt)");
+        tvName.setText(nv.getHoTen() + " • " + nv.getChucVu());
         double avg = nv.getDiemTrungBinh();
-        tvScore.setText(String.format("%.1f ⭐", avg));
+        tvScore.setText(String.format("%.1f ★", avg));
 
-        // Cảnh báo đỏ nếu đánh giá gần nhất <= 2 sao (đúng yêu cầu đồ án)
         if (nv.getSaoGanNhat() <= 2) {
             card.setBackgroundResource(R.drawable.bg_badge_bad);
-            tvComment.setText("⚠️ Khiếu nại (" + nv.getSaoGanNhat() + "⭐): \"" + nv.getNhanXetGanNhat() + "\"");
+            tvScore.setTextColor(Color.parseColor("#E11D48"));
+            tvComment.setText("Khiếu nại: " + nv.getNhanXetGanNhat());
         } else {
-            card.setBackgroundResource(R.drawable.bg_category_item);
-            tvComment.setText("💬 \"" + nv.getNhanXetGanNhat() + "\"");
+            card.setBackgroundResource(R.drawable.bg_card_soft_22);
+            tvScore.setTextColor(Color.parseColor("#059669"));
+            tvComment.setText(nv.getNhanXetGanNhat());
         }
 
         int pct = (int) Math.round((avg / 5.0) * 100);

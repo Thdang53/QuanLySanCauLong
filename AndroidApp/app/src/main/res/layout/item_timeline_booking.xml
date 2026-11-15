@@ -4,80 +4,97 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingBottom="12dp">
+    android:paddingTop="7dp"
+    android:paddingBottom="7dp">
 
-    <!-- Cột giờ Timeline bên trái (giống Hình 2 giữa) -->
+    <!-- Cột Giờ bên trái (08:00, 09:00...) giống hệt ảnh mẫu giữa -->
     <TextView
         android:id="@+id/tvTimelineHour"
-        android:layout_width="48dp"
+        android:layout_width="46dp"
         android:layout_height="wrap_content"
-        android:text="18:00"
-        android:textColor="@color/text_muted"
+        android:text="08:00"
+        android:textColor="#94A3B8"
         android:textSize="12.5sp"
         android:textStyle="bold" />
 
-    <!-- Chấm tròn Timeline -->
+    <!-- Vòng tròn rỗng màu trên trục thời gian (○) -->
     <TextView
         android:id="@+id/tvTimelineDot"
-        android:layout_width="18dp"
+        android:layout_width="22dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="●"
-        android:textColor="@color/davies_primary"
-        android:textSize="12sp" />
+        android:text="◯"
+        android:textColor="#14B8A6"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
-    <!-- Khối Pill màu sắc bo tròn giống Hình 2 -->
+    <!-- Viên thuốc bo tròn 99dp lệch tầng (Staggered Capsule Pill) giống hệt ảnh mẫu -->
     <LinearLayout
         android:id="@+id/boxTimelinePill"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="6dp"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/bg_pill_teal"
-        android:orientation="vertical"
-        android:paddingStart="14dp"
-        android:paddingTop="11dp"
-        android:paddingEnd="14dp"
-        android:paddingBottom="11dp">
+        android:elevation="3dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="14dp">
 
+        <!-- Vòng tròn trắng chứa icon bên trái viên thuốc giống ảnh mẫu -->
+        <TextView
+            android:id="@+id/tvTimelineIconCircle"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/bg_circle_white"
+            android:gravity="center"
+            android:text="🏸"
+            android:textSize="15sp" />
+
+        <!-- 2 dòng chữ gọn gàng bên trong viên thuốc -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvTimelineTitle"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Sân 1 • Minh Khang"
-                android:textColor="@color/text_white"
-                android:textSize="13.5sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Sân 1 • Yonex VIP"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvTimelineBadge"
+                android:id="@+id/tvTimelineSub"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_pill_glass"
-                android:paddingStart="8dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="2dp"
-                android:text="ĐÃ CỌC 30%"
-                android:textColor="@color/text_white"
-                android:textSize="9.5sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="1dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="🕒 18:00 - 20:00"
+                android:textColor="#E6FFFFFF"
+                android:textSize="11sp" />
         </LinearLayout>
 
+        <!-- Nhãn trạng thái nhỏ gọn bên phải -->
         <TextView
-            android:id="@+id/tvTimelineSub"
+            android:id="@+id/tvTimelineBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="🕒 18:00 - 20:00  •  Cọc: 48.000đ"
-            android:textColor="#F8FAFC"
-            android:textSize="11.5sp" />
+            android:background="@drawable/bg_pill_glass"
+            android:paddingStart="8dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="3dp"
+            android:text="Đã cọc"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
+            android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

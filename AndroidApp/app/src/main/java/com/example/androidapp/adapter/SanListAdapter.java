@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.androidapp.R;
@@ -45,7 +45,7 @@ public class SanListAdapter extends BaseAdapter {
 
         SanCauLong san = arrayList.get(position);
 
-        LinearLayout boxCourtIcon = convertView.findViewById(R.id.boxCourtIcon);
+        FrameLayout boxCourtIcon = convertView.findViewById(R.id.boxCourtIcon);
         TextView tvName = convertView.findViewById(R.id.tvItemCourtName);
         TextView tvDesc = convertView.findViewById(R.id.tvItemCourtDesc);
         TextView tvRating = convertView.findViewById(R.id.tvItemCourtRating);
@@ -54,26 +54,26 @@ public class SanListAdapter extends BaseAdapter {
 
         tvName.setText(san.getTenSan());
         tvDesc.setText(san.getMoTa());
-        tvRating.setText(String.format("%.1f ⭐", san.getDiemSao()));
-        tvPrice.setText(String.format("%,dđ/giờ", san.getGiaMoiGio()));
+        tvRating.setText(String.format("%.1f ★", san.getDiemSao()));
+        tvPrice.setText(String.format("%,dđ/h", san.getGiaMoiGio()));
 
         String st = san.getTrangThai();
         if ("TRONG".equals(st)) {
             boxCourtIcon.setBackgroundResource(R.drawable.bg_court_free);
             tvStatus.setBackgroundResource(R.drawable.bg_pill_teal);
-            tvStatus.setText("TRỐNG");
+            tvStatus.setText("Trống");
         } else if ("DA_DAT".equals(st)) {
             boxCourtIcon.setBackgroundResource(R.drawable.bg_court_booked);
             tvStatus.setBackgroundResource(R.drawable.bg_pill_amber);
-            tvStatus.setText("ĐÃ CỌC 30%");
+            tvStatus.setText("Đã cọc");
         } else if ("DANG_CHOI".equals(st)) {
             boxCourtIcon.setBackgroundResource(R.drawable.bg_court_playing);
             tvStatus.setBackgroundResource(R.drawable.bg_pill_coral);
-            tvStatus.setText("ĐANG CHƠI");
+            tvStatus.setText("Đang chơi");
         } else {
             boxCourtIcon.setBackgroundResource(R.drawable.bg_court_maint);
             tvStatus.setBackgroundResource(R.drawable.bg_pill_grey);
-            tvStatus.setText("BẢO TRÌ");
+            tvStatus.setText("Bảo trì");
         }
 
         return convertView;

@@ -2,28 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="10dp">
+    android:orientation="vertical"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
 
+    <!-- Thẻ bo tròn 22dp giống hệt "HTML Responsive / React JS" ở màn hình Profile bên phải -->
     <LinearLayout
         android:id="@+id/cardLeaderboardItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_category_item"
+        android:background="@drawable/bg_card_soft_22"
+        android:elevation="2dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <!-- Huy hiệu hạng -->
+        <!-- Vòng tròn màu chứa icon bên trái -->
         <TextView
             android:id="@+id/tvRankMedal"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_badge_gold"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_circle_pastel_mint"
             android:gravity="center"
             android:text="🥇"
-            android:textSize="22sp" />
+            android:textSize="18sp" />
 
-        <!-- Thông tin & thanh tiến độ (giống Hình 2 phải) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,6 +34,7 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- Hàng trên: Tên nhân viên bên trái + Điểm sao bên phải -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,8 +46,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Nguyễn Văn Hùng"
-                    android:textColor="@color/text_main"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Nhân Viên"
+                    android:textColor="#1A1F36"
                     android:textSize="13.5sp"
                     android:textStyle="bold" />
 
@@ -51,30 +57,34 @@
                     android:id="@+id/tvStaffScore"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4.9 ⭐"
-                    android:textColor="@color/star_gold"
-                    android:textSize="13sp"
+                    android:text="4.9 ★"
+                    android:textColor="#059669"
+                    android:textSize="12.5sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- Nhận xét ngắn 1 dòng -->
             <TextView
                 android:id="@+id/tvStaffComment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Phục vụ rất nhiệt tình, sân sạch sẽ!"
-                android:textColor="@color/text_muted"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Phục vụ nhiệt tình, hỗ trợ nhanh"
+                android:textColor="#94A3B8"
                 android:textSize="11sp" />
 
+            <!-- Thanh tiến trình mỏng giống ảnh mẫu Profile -->
             <ProgressBar
                 android:id="@+id/pbStaffRating"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="6dp"
+                android:layout_height="5dp"
                 android:layout_marginTop="6dp"
                 android:max="100"
-                android:progress="98"
-                android:progressTint="@color/davies_coral" />
+                android:progress="95"
+                android:progressTint="#10B981" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
