@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Cấp quyền truy cập mạng để giao tiếp RESTful API với Spring Boot -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="Davies Arena"
+        android:theme="@style/Theme.DaviesArena"
+        android:usesCleartextTraffic="true">
+
+        <!-- Màn hình Đăng nhập Davies Arena (mở đầu tiên) -->
+        <activity
+            android:name=".LoginActivity"
+            android:label="Davies Arena"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Giao diện Hệ thống Quản lý Sân Cầu Lông Davies Arena (3 tab) -->
+        <activity
+            android:name=".DaviesArenaActivity"
+            android:label="Davies Arena"
+            android:exported="false" />
+
+        <!-- Màn hình bài tập cũ -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ReceiveActivity"
+            android:exported="false" />
+
+        <!-- Các màn hình bài tập trước vẫn giữ nguyên -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AccountInfoActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

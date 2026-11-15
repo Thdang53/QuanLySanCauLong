@@ -1,0 +1,109 @@
+-- ============================================================
+-- CƠ SỞ DỮ LIỆU HỆ THỐNG QUẢN LÝ SÂN CẦU LÔNG DAVIES ARENA
+-- Đã xóa toàn bộ dữ liệu test, chỉ khởi tạo 3 tài khoản chuẩn:
+-- 1. Khách hàng (CUSTOMER) : khach    / 123456 (SĐT: 0901111111)
+-- 2. Nhân viên  (STAFF)    : nhanvien / 123456 (SĐT: 0902222222)
+-- 3. Quản lý    (ADMIN)    : quanly   / 123456 (SĐT: 0903333333)
+-- ============================================================
+
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'BadmintonDB')
+BEGIN
+    CREATE DATABASE BadmintonDB;
+END
+GO
+
+USE BadmintonDB;
+GO
+
+-- Xóa các bảng cũ nếu tồn tại để làm sạch 100% data test
+IF OBJECT_ID('DANH_GIA_NHAN_VIEN', 'U') IS NOT NULL DROP TABLE DANH_GIA_NHAN_VIEN;
+IF OBJECT_ID('HOA_DON', 'U') IS NOT NULL DROP TABLE HOA_DON;
+IF OBJECT_ID('CHI_TIET_DICH_VU', 'U') IS NOT NULL DROP TABLE CHI_TIET_DICH_VU;
+IF OBJECT_ID('DAT_SAN', 'U') IS NOT NULL DROP TABLE DAT_SAN;
+IF OBJECT_ID('DICH_VU', 'U') IS NOT NULL DROP TABLE DICH_VU;
+IF OBJECT_ID('SAN_CAU_LONG', 'U') IS NOT NULL DROP TABLE SAN_CAU_LONG;
+IF OBJECT_ID('NGUOI_DUNG', 'U') IS NOT NULL DROP TABLE NGUOI_DUNG;
+GO
+
+-- 1. Bảng NGUOI_DUNG
+CREATE TABLE NGUOI_DUNG (
+    MaNguoiDung INT IDENTITY(1,1) PRIMARY KEY,
+    TaiKhoan NVARCHAR(50) NOT NULL UNIQUE,
+    SoDienThoai NVARCHAR(20) NOT NULL UNIQUE,
+    HoTen NVARCHAR(100) NOT NULL,
+    MatKhau NVARCHAR(100) NOT NULL,
+    VaiTro NVARCHAR(20) NOT NULL CHECK (VaiTro IN ('CUSTOMER', 'STAFF', 'ADMIN'))
+);
+
+-- 2. Bảng SAN_CAU_LONG (Trống hoàn toàn, không có data test)
+CREATE TABLE SAN_CAU_LONG (
+    MaSan INT IDENTITY(1,1) PRIMARY KEY,
+    TenSan NVARCHAR(100) NOT NULL,
+    MoTa NVARCHAR(200),
+    GiaMoiGio INT NOT NULL DEFAULT 80000,
+    TrangThai NVARCHAR(20) NOT NULL DEFAULT 'TRONG'
+);
+
+-- 3. Bảng DAT_SAN (Trống hoàn toàn, không có data test)
+CREATE TABLE DAT_SAN (
+    MaDatSan INT IDENTITY(1,1) PRIMARY KEY,
+    MaSan INT NOT NULL FOREIGN KEY REFERENCES SAN_CAU_LONG(MaSan),
+    MaNguoiDung INT NOT NULL FOREIGN KEY REFERENCES NGUOI_DUNG(MaNguoiDung),
+    KhungGio NVARCHAR(50) NOT NULL,
+    TienSanTamTinh INT NOT NULL DEFAULT 0,
+    TienCoc30PhanTram INT NOT NULL DEFAULT 0,
+    TrangThaiDatSan NVARCHAR(30) NOT NULL DEFAULT 'CHO_DUYET'
+);
+
+-- 4. Bảng DICH_VU (Trống hoàn toàn, không có data test)
+CREATE TABLE DICH_VU (
+    MaDV INT IDENTITY(1,1) PRIMARY KEY,
+    TenDV NVARCHAR(100) NOT NULL,
+    DonGia INT NOT NULL,
+    DonViTinh NVARCHAR(30) NOT NULL,
+    SoLuongTon INT NOT NULL DEFAULT 0
+);
+
+-- 5. Bảng CHI_TIET_DICH_VU
+CREATE TABLE CHI_TIET_DICH_VU (
+    MaChiTiet INT IDENTITY(1,1) PRIMARY KEY,
+    MaDatSan INT NOT NULL FOREIGN KEY REFERENCES DAT_SAN(MaDatSan),
+    MaDV INT NOT NULL FOREIGN KEY REFERENCES DICH_VU(MaDV),
+    SoLuong INT NOT NULL,
+    DonGia INT NOT NULL
+);
+
+-- 6. Bảng HOA_DON
+CREATE TABLE HOA_DON (
+    MaHD INT IDENTITY(1,1) PRIMARY KEY,
+    MaDatSan INT NOT NULL UNIQUE FOREIGN KEY REFERENCES DAT_SAN(MaDatSan),
+    TienSanThucTe INT NOT NULL,
+    TienDichVu INT NOT NULL DEFAULT 0,
+    TienCocDaTru INT NOT NULL DEFAULT 0,
+    TongThanhToan INT NOT NULL,
+    ThoiGianLap DATETIME DEFAULT GETDATE(),
+    NhanVienThu INT NULL FOREIGN KEY REFERENCES NGUOI_DUNG(MaNguoiDung)
+);
+
+-- 7. Bảng DANH_GIA_NHAN_VIEN
+CREATE TABLE DANH_GIA_NHAN_VIEN (
+    MaDanhGia INT IDENTITY(1,1) PRIMARY KEY,
+    MaHD INT NOT NULL UNIQUE FOREIGN KEY REFERENCES HOA_DON(MaHD),
+    MaKhachHang INT NOT NULL FOREIGN KEY REFERENCES NGUOI_DUNG(MaNguoiDung),
+    MaNhanVien INT NOT NULL FOREIGN KEY REFERENCES NGUOI_DUNG(MaNguoiDung),
+    SoSao INT NOT NULL CHECK (SoSao BETWEEN 1 AND 5),
+    NoiDung NVARCHAR(500),
+    ThoiGianDanhGia DATETIME DEFAULT GETDATE()
+);
+GO
+
+-- CHỈ TẠO ĐÚNG 3 TÀI KHOẢN: KHÁCH HÀNG, NHÂN VIÊN, QUẢN LÝ
+INSERT INTO NGUOI_DUNG (TaiKhoan, SoDienThoai, HoTen, MatKhau, VaiTro)
+VALUES
+    (N'khach',    N'0901111111', N'Khách Hàng',    N'123456', N'CUSTOMER'),
+    (N'nhanvien', N'0902222222', N'Nhân Viên',     N'123456', N'STAFF'),
+    (N'quanly',   N'0903333333', N'Quản Lý Sân',   N'123456', N'ADMIN');
+GO
+
+SELECT MaNguoiDung, TaiKhoan, SoDienThoai, HoTen, VaiTro FROM NGUOI_DUNG;
+GO

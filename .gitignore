@@ -1,0 +1,21 @@
+# Gradle & Android Studio build outputs
+.gradle/
+**/build/
+**/.gradle/
+**/.idea/
+local.properties
+**/local.properties
+*.iml
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Captures & temporary screenshots
+*.png
+.vscode/
+**/.vscode/
+Học java/
+watch.ps1
+AndroidApp/watch.ps1

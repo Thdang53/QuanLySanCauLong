@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#06372C">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="Emerald Badminton Court Background"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_login_emerald_court" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#2604221B" />
+
+    <!-- Toàn bộ Form Đăng ký căn chính giữa màn hình -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="34dp"
+        android:paddingEnd="34dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:shadowColor="#40000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="4"
+            android:text="Create Account\nDavies Arena"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="24dp"
+            android:text="THAM GIA CỘNG ĐỒNG CẦU LÔNG"
+            android:textColor="#D1FAE5"
+            android:textSize="11.5sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/edtRegEmail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_frosted_pill"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="12dp"
+            android:drawableTint="#0D6E57"
+            android:hint="Số điện thoại / Email"
+            android:inputType="textEmailAddress"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#072A22"
+            android:textColorHint="#4A7C6F"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/edtRegUser"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_frosted_pill"
+            android:drawableStart="@drawable/ic_person"
+            android:drawablePadding="12dp"
+            android:drawableTint="#0D6E57"
+            android:hint="Tên đăng nhập"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#072A22"
+            android:textColorHint="#4A7C6F"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/edtRegPass"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_frosted_pill"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="12dp"
+            android:drawableTint="#0D6E57"
+            android:hint="Mật khẩu"
+            android:inputType="textPassword"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#072A22"
+            android:textColorHint="#4A7C6F"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/edtRegConfirmPass"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_input_frosted_pill"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="12dp"
+            android:drawableTint="#0D6E57"
+            android:hint="Xác nhận mật khẩu"
+            android:inputType="textPassword"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#072A22"
+            android:textColorHint="#4A7C6F"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRegSignIn"
+            android:layout_width="210dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="26dp"
+            android:background="@drawable/bg_btn_emerald_pill"
+            android:elevation="6dp"
+            android:stateListAnimator="@null"
+            android:text="Sign Up"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15.5sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRegCancel"
+            android:layout_width="210dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_btn_emerald_secondary_pill"
+            android:elevation="4dp"
+            android:stateListAnimator="@null"
+            android:text="Back to Sign In"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</FrameLayout>

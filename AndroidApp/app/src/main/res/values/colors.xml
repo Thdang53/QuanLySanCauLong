@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Primary Colors (Emerald & Teal + Coral Accent from Hình 1 & 2) -->
+    <color name="davies_primary">#10B981</color>
+    <color name="davies_primary_variant">#059669</color>
+    <color name="davies_primary_dark">#064E3B</color>
+    <color name="davies_teal">#0D9488</color>
+    <color name="davies_coral">#FB7185</color>
+    <color name="davies_coral_dark">#F43F5E</color>
+
+    <!-- Backgrounds (Bright Clean Dribbble Style) -->
+    <color name="davies_bg">#F8FAFC</color>
+    <color name="davies_bg_soft">#EEF4F3</color>
+    <color name="davies_surface">#FFFFFF</color>
+    <color name="davies_surface_subtle">#F0FDF9</color>
+    <color name="davies_input_bg">#F1F5F9</color>
+
+    <!-- Court State Colors (4 Trạng Thái Chuẩn) -->
+    <color name="court_free_start">#34D399</color>
+    <color name="court_free_end">#059669</color>
+
+    <color name="court_booked_start">#FBBF24</color>
+    <color name="court_booked_end">#D97706</color>
+
+    <color name="court_playing_start">#F87171</color>
+    <color name="court_playing_end">#DC2626</color>
+
+    <color name="court_maint_start">#BCC2CB</color>
+    <color name="court_maint_end">#808895</color>
+
+    <!-- Text Colors -->
+    <color name="text_main">#1E293B</color>
+    <color name="text_muted">#64748B</color>
+    <color name="text_light">#94A3B8</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_primary">#065F46</color>
+
+    <!-- Badges & Timeline Pills -->
+    <color name="badge_pending_bg">#FEF3C7</color>
+    <color name="badge_pending_text">#92400E</color>
+    <color name="badge_confirmed_bg">#D1FAE5</color>
+    <color name="badge_confirmed_text">#065F46</color>
+    <color name="badge_playing_bg">#FEE2E2</color>
+    <color name="badge_playing_text">#991B1B</color>
+    <color name="badge_done_bg">#E0E7FF</color>
+    <color name="badge_done_text">#3730A3</color>
+
+    <color name="pill_teal">#14B8A6</color>
+    <color name="pill_coral">#FB7185</color>
+    <color name="pill_purple">#A855F7</color>
+    <color name="pill_blue">#3B82F6</color>
+    <color name="pill_amber">#F59E0B</color>
+
+    <color name="star_gold">#F59E0B</color>
+    <color name="border_light">#E2E8F0</color>
+</resources>

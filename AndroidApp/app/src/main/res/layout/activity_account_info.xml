@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#D32F2F">
+
+    <!-- Thanh tiêu đề (Header Toolbar) -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:paddingHorizontal="24dp"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Account Info"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SAVE"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:padding="8dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <!-- Đường phân cách nhẹ -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E57373"
+        android:layout_marginBottom="28dp" />
+
+    <!-- Khối các ô thông tin tài khoản -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="26dp">
+
+        <!-- Ô Tên hiển thị (vudinhai) -->
+        <EditText
+            android:id="@+id/edtInfoName"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_input"
+            android:text="vudinhai"
+            android:textColor="#1E293B"
+            android:paddingHorizontal="16dp"
+            android:drawableStart="@drawable/ic_info"
+            android:drawablePadding="14dp"
+            android:textSize="15sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Ô Email -->
+        <EditText
+            android:id="@+id/edtInfoEmail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_input"
+            android:hint="Email"
+            android:textColorHint="#EF9A9A"
+            android:textColor="#D32F2F"
+            android:paddingHorizontal="16dp"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="14dp"
+            android:inputType="textEmailAddress"
+            android:textSize="15sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Ô Username -->
+        <EditText
+            android:id="@+id/edtInfoUser"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_input"
+            android:hint="Username"
+            android:textColorHint="#EF9A9A"
+            android:textColor="#D32F2F"
+            android:paddingHorizontal="16dp"
+            android:drawableStart="@drawable/ic_person"
+            android:drawablePadding="14dp"
+            android:textSize="15sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Ô Password -->
+        <EditText
+            android:id="@+id/edtInfoPass"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_input"
+            android:hint="Password"
+            android:textColorHint="#EF9A9A"
+            android:textColor="#D32F2F"
+            android:paddingHorizontal="16dp"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="14dp"
+            android:inputType="textPassword"
+            android:textSize="15sp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Cụm chọn giới tính Male / Female -->
+        <RadioGroup
+            android:id="@+id/rgGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/rbMale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Male"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:buttonTint="#FFFFFF"
+                android:layout_marginEnd="48dp" />
+
+            <RadioButton
+                android:id="@+id/rbFemale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Female"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:buttonTint="#FFFFFF" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+</LinearLayout>
