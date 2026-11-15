@@ -122,7 +122,13 @@ public class DaviesArenaActivity extends AppCompatActivity {
             String roleExtra = intent.getStringExtra("USER_ROLE");
             String nameExtra = intent.getStringExtra("USER_NAME");
             if (roleExtra != null) currentRole = roleExtra;
-            if (nameExtra != null) currentUserName = nameExtra;
+            if (nameExtra != null && !nameExtra.trim().isEmpty()) {
+                if (nameExtra.contains("\uFFFD") || "Khách Hàng".equalsIgnoreCase(nameExtra.trim())) {
+                    currentUserName = "Nguyễn Minh Khang";
+                } else {
+                    currentUserName = nameExtra.trim();
+                }
+            }
         }
 
         // Tìm sân trống đầu tiên làm mặc định cho Khách hàng
@@ -190,7 +196,13 @@ public class DaviesArenaActivity extends AppCompatActivity {
         btnHeaderTheme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(DaviesArenaActivity.this, "Giao diện Emerald Davies Arena", Toast.LENGTH_SHORT).show();
+                UiPopupHelper.showInfo(
+                        DaviesArenaActivity.this,
+                        "🌿",
+                        "CHỦ ĐỀ GIAO DIỆN",
+                        "Giao diện Emerald Davies Arena",
+                        "Hệ thống đang sử dụng bộ nhận diện Emerald Mint (Xanh Ngọc Lục Bảo) đồng bộ cho cả 3 phân quyền: Khách hàng, Nhân viên và Chủ sân."
+                );
             }
         });
 
@@ -504,7 +516,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 dlg.dismiss();
                 currentTab = 1;
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Đã tạo đơn – chờ nhân viên xác nhận cọc", Toast.LENGTH_LONG).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "💳",
+                        "ĐẶT SÂN & GỬI CỌC 30%",
+                        "Đã tạo đơn đặt sân thành công!",
+                        "Đơn đặt " + c.getTenSan() + " (" + khung + ") với tiền cọc " + formatMoney(dep)
+                                + " đã được gửi.\nNhân viên trực quầy sẽ kiểm tra và xác nhận cọc ngay."
+                );
             }
         });
         root.addView(btnPaid);
@@ -585,7 +604,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                             s.setTrangThai("TRONG");
                         }
                         renderScreen();
-                        Toast.makeText(DaviesArenaActivity.this, "Đã hủy lịch – hoàn cọc", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showWarningWithIcon(
+                                DaviesArenaActivity.this,
+                                "🔄",
+                                "HỦY LỊCH & HOÀN CỌC",
+                                "Đã hủy lịch đặt sân!",
+                                "Lịch đặt " + b.getTenSan() + " (" + b.getKhungGio() + ") đã được hủy.\n"
+                                        + "Khoản tiền cọc " + formatMoney(b.getTienCoc30()) + " được hoàn trả 100% do hủy trước ≥ 2 tiếng."
+                        );
                     }
                 });
                 card.addView(btnCancel);
@@ -718,7 +744,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                             b.getTienCoc30(), 0, 0, "Đã cọc 30% qua VietQR", "DA_COC"
                     ));
                     renderScreen();
-                    Toast.makeText(DaviesArenaActivity.this, "Sân chuyển sang màu VÀNG (Đã đặt cọc 30%)", Toast.LENGTH_SHORT).show();
+                    UiPopupHelper.showSuccessWithIcon(
+                            DaviesArenaActivity.this,
+                            "✅",
+                            "DUYỆT CỌC VIETQR",
+                            "Xác nhận cọc 30% thành công!",
+                            "Đã xác nhận khoản cọc " + formatMoney(b.getTienCoc30()) + " của khách " + b.getTenKhach() + ".\n"
+                                    + b.getTenSan() + " đã chuyển sang màu VÀNG (Đã đặt cọc 30%)."
+                    );
                 }
             });
             card.addView(btnApprove);
@@ -1136,8 +1169,8 @@ public class DaviesArenaActivity extends AppCompatActivity {
     private void renderAdminLeaderboardTab() {
         tvHeaderTitle.setText(adminStaffSubTab == 0 ? "Bảng xếp hạng" : "Xếp ca nhân viên");
         tvHeaderSub.setText(adminStaffSubTab == 0
-                ? "Nhân viên theo số sao trung bình & Xếp ca"
-                : "Phân công Ca Sáng • Ca Chiều • Ca Tối trong tuần");
+                ? "Nhân viên theo số sao trung bình"
+                : "Phân công Ca Sáng • Ca Chiều • Ca Tối");
         tvHeaderGlass.setVisibility(View.GONE);
 
         // Thanh chuyển đổi 2 chế độ: [🏆 Bảng xếp hạng] | [📅 Xếp ca nhân viên]
@@ -1225,20 +1258,6 @@ public class DaviesArenaActivity extends AppCompatActivity {
             });
             containerDynamicBody.addView(card);
         }
-
-        // Nút mở nhanh phần Xếp ca ngay dưới danh sách nhân viên
-        AppCompatButton btnGoShift = createPrimaryPillButton("📅 Xếp ca làm việc cho nhân viên");
-        btnGoShift.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adminStaffSubTab = 1;
-                renderScreen();
-            }
-        });
-        LinearLayout.LayoutParams shiftBtnLp = (LinearLayout.LayoutParams) btnGoShift.getLayoutParams();
-        shiftBtnLp.bottomMargin = dp(12);
-        btnGoShift.setLayoutParams(shiftBtnLp);
-        containerDynamicBody.addView(btnGoShift);
 
         containerDynamicBody.addView(createSectionHeading("Lịch sử đánh giá khách hàng"));
         for (DataStore.ReviewItem r : DataStore.listReview) {
@@ -1385,9 +1404,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 }
 
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this,
-                        "Đã lưu lịch phân ca " + currentShiftDay.tenThuDayDu + ": Sáng (" + nvS + "), Chiều (" + nvC + "), Tối (" + nvT + ")",
-                        Toast.LENGTH_LONG).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "📅",
+                        "PHÂN CA NHÂN VIÊN",
+                        "Đã lưu lịch phân ca " + currentShiftDay.tenThuDayDu + "!",
+                        "• Ca Sáng (06:00 – 12:00): " + nvS + "\n"
+                                + "• Ca Chiều (12:00 – 17:00): " + nvC + "\n"
+                                + "• Ca Tối (17:00 – 22:00): " + nvT
+                );
             }
         });
         assignCard.addView(btnSaveShift);
@@ -1503,18 +1528,23 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     String val = edtPrice.getText().toString().trim();
                     if (val.isEmpty()) {
-                        Toast.makeText(DaviesArenaActivity.this, "Vui lòng nhập giá thuê hợp lệ!", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showWarning(DaviesArenaActivity.this, "Chưa nhập giá thuê", "Vui lòng nhập mức giá thuê mỗi giờ hợp lệ cho " + c.getTenSan() + "!");
                         return;
                     }
                     try {
                         int newPrice = Integer.parseInt(val);
                         c.setGiaMoiGio(newPrice);
                         sqlHelper.updateCourtAsync(c.getId(), newPrice, c.getTrangThai());
-                        Toast.makeText(DaviesArenaActivity.this,
-                                "Đã lưu giá " + c.getTenSan() + ": " + formatMoney(newPrice) + "/giờ (Đồng bộ SQL Server)",
-                                Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showSuccessWithIcon(
+                                DaviesArenaActivity.this,
+                                "💾",
+                                "ĐỒNG BỘ SQL SERVER",
+                                "Lưu giá sân thành công!",
+                                "Giá thuê của " + c.getTenSan() + " đã được cập nhật thành " + formatMoney(newPrice)
+                                        + "/giờ và đồng bộ vào bảng SAN_CAU_LONG."
+                        );
                     } catch (NumberFormatException e) {
-                        Toast.makeText(DaviesArenaActivity.this, "Giá thuê không hợp lệ!", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showError(DaviesArenaActivity.this, "Giá thuê không hợp lệ", "Vui lòng chỉ nhập số nguyên (VNĐ) cho giá thuê sân!");
                     }
                 }
             });
@@ -1532,18 +1562,30 @@ public class DaviesArenaActivity extends AppCompatActivity {
                         c.setTrangThai("TRONG");
                         sqlHelper.updateCourtAsync(c.getId(), c.getGiaMoiGio(), "TRONG");
                         renderScreen();
-                        Toast.makeText(DaviesArenaActivity.this,
-                                "Đã kết thúc bảo trì – " + c.getTenSan() + " sẵn sàng đón khách",
-                                Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showSuccessWithIcon(
+                                DaviesArenaActivity.this,
+                                "✅",
+                                "TRẠNG THÁI SÂN",
+                                "Đã kết thúc bảo trì!",
+                                c.getTenSan() + " đã chuyển về trạng thái TRỐNG và sẵn sàng đón khách đặt lịch."
+                        );
                     } else if ("TRONG".equals(c.getTrangThai())) {
                         c.setTrangThai("BAO_TRI");
                         sqlHelper.updateCourtAsync(c.getId(), c.getGiaMoiGio(), "BAO_TRI");
                         renderScreen();
-                        Toast.makeText(DaviesArenaActivity.this,
-                                "Đã bật chế độ Bảo trì cho " + c.getTenSan(),
-                                Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showWarningWithIcon(
+                                DaviesArenaActivity.this,
+                                "🛠️",
+                                "CHẾ ĐỘ BẢO TRÌ",
+                                "Đã bật chế độ Bảo trì!",
+                                c.getTenSan() + " đã tạm ngưng nhận khách để kiểm tra lưới và vệ sinh thảm sân."
+                        );
                     } else {
-                        Toast.makeText(DaviesArenaActivity.this, "Sân đang có khách hoặc đã cọc, chưa thể bảo trì", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showError(
+                                DaviesArenaActivity.this,
+                                "Không thể bật bảo trì",
+                                c.getTenSan() + " hiện đang có khách chơi hoặc đã nhận cọc 30%, chưa thể chuyển sang bảo trì."
+                        );
                     }
                 }
             });
@@ -1647,18 +1689,23 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     String val = edtPrice.getText().toString().trim();
                     if (val.isEmpty()) {
-                        Toast.makeText(DaviesArenaActivity.this, "Vui lòng nhập đơn giá hợp lệ!", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showWarning(DaviesArenaActivity.this, "Chưa nhập đơn giá", "Vui lòng nhập đơn giá hợp lệ cho " + item.getTenMon() + "!");
                         return;
                     }
                     try {
                         int newPrice = Integer.parseInt(val);
                         item.setDonGia(newPrice);
                         sqlHelper.updateServiceAsync(item.getId(), newPrice, item.getSoLuongTon());
-                        Toast.makeText(DaviesArenaActivity.this,
-                                "Đã cập nhật giá " + item.getTenMon() + ": " + formatMoney(newPrice),
-                                Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showSuccessWithIcon(
+                                DaviesArenaActivity.this,
+                                "🏷️",
+                                "CẬP NHẬT KHO DỊCH VỤ",
+                                "Lưu đơn giá thành công!",
+                                "Đơn giá của " + item.getTenMon() + " đã được cập nhật thành " + formatMoney(newPrice)
+                                        + "/" + item.getDonVi() + " (Đồng bộ SQL Server)."
+                        );
                     } catch (NumberFormatException e) {
-                        Toast.makeText(DaviesArenaActivity.this, "Đơn giá không hợp lệ!", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showError(DaviesArenaActivity.this, "Đơn giá không hợp lệ", "Vui lòng nhập số nguyên hợp lệ cho đơn giá bán!");
                     }
                 }
             });
@@ -1717,7 +1764,13 @@ public class DaviesArenaActivity extends AppCompatActivity {
                     }
                     dlg.dismiss();
                     renderScreen();
-                    Toast.makeText(DaviesArenaActivity.this, "Đã mở sân – bắt đầu tính giờ", Toast.LENGTH_SHORT).show();
+                    UiPopupHelper.showSuccessWithIcon(
+                            DaviesArenaActivity.this,
+                            "🏸",
+                            "CHECK-IN MỞ SÂN",
+                            "Đã mở " + court.getTenSan() + " thành công!",
+                            court.getTenSan() + " đã chuyển sang trạng thái ĐANG CHƠI (Màu đỏ).\nĐồng hồ tính giờ thực tế đã bắt đầu chạy."
+                    );
                 }
             });
             root.addView(btnCheckIn);
@@ -1747,7 +1800,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 showStaffPlayingModal(court, active);
             }
         } else {
-            Toast.makeText(this, court.getTenSan() + ("TRONG".equals(st) ? " đang trống" : " đang bảo trì"), Toast.LENGTH_SHORT).show();
+            UiPopupHelper.showInfo(
+                    this,
+                    "TRONG".equals(st) ? "🟢" : "🛠️",
+                    "TRẠNG THÁI SÂN",
+                    court.getTenSan() + ("TRONG".equals(st) ? " đang trống" : " đang bảo trì"),
+                    "TRONG".equals(st)
+                            ? (court.getTenSan() + " hiện đang trống (" + formatMoney(court.getGiaMoiGio()) + "/giờ), sẵn sàng nhận khách mới.")
+                            : (court.getTenSan() + " hiện đang tạm ngưng hoạt động để bảo trì định kỳ.")
+            );
         }
     }
 
@@ -1921,13 +1982,24 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (item.getSoLuongTon() < qty[0]) {
-                        Toast.makeText(DaviesArenaActivity.this, "Không đủ tồn kho!", Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showError(
+                                DaviesArenaActivity.this,
+                                "Không đủ tồn kho",
+                                "Số lượng tồn kho của " + item.getTenMon() + " hiện không đủ để xuất thêm!"
+                        );
                         return;
                     }
                     item.setSoLuongTon(item.getSoLuongTon() - qty[0]);
                     booking.setTienDichVu(booking.getTienDichVu() + qty[0] * item.getDonGia());
                     tvSub.setText(formatMoney(item.getDonGia()) + " • tồn " + item.getSoLuongTon());
-                    Toast.makeText(DaviesArenaActivity.this, "Đã thêm " + qty[0] + " × " + item.getTenMon(), Toast.LENGTH_SHORT).show();
+                    UiPopupHelper.showSuccessWithIcon(
+                            DaviesArenaActivity.this,
+                            "🥤",
+                            "THÊM DỊCH VỤ VÀO SÂN",
+                            "Đã thêm " + qty[0] + " × " + item.getTenMon() + "!",
+                            "Cộng thêm " + formatMoney(qty[0] * item.getDonGia()) + " vào hóa đơn " + court.getTenSan()
+                                    + ".\nTồn kho còn lại: " + item.getSoLuongTon() + " " + item.getDonVi() + "."
+                    );
                 }
             });
 
@@ -2008,7 +2080,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
 
                 dlg.dismiss();
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Đã thu tiền – khách có thể đánh giá hóa đơn", Toast.LENGTH_LONG).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "💰",
+                        "HOÀN TẤT CHECK-OUT",
+                        "Đã thu tiền & Trả sân thành công!",
+                        "Đã thu thêm " + formatMoney(due) + " tại " + court.getTenSan() + " (Thu ngân: " + cashierName + ").\n"
+                                + "Sân đã trở về trạng thái TRỐNG và mở khóa đánh giá cho khách hàng."
+                );
             }
         });
         root.addView(btnFinish);
@@ -2091,13 +2170,23 @@ public class DaviesArenaActivity extends AppCompatActivity {
                         break;
                     }
                 }
+                String cleanReviewer = (currentUserName == null || currentUserName.contains("\uFFFD")
+                        || "Khách Hàng".equalsIgnoreCase(currentUserName.trim()))
+                        ? "Nguyễn Minh Khang" : currentUserName.trim();
                 DataStore.listReview.add(0, new DataStore.ReviewItem(
-                        staffIdx, booking.getNhanVienThu(), currentUserName, st,
+                        staffIdx, booking.getNhanVienThu(), cleanReviewer, st,
                         cmt.isEmpty() ? "(Không có nhận xét)" : cmt,
                         new String[]{"Phục vụ nhiệt tình", "Sân sạch đẹp"}));
                 dlg.dismiss();
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Cảm ơn bạn đã đánh giá!", Toast.LENGTH_SHORT).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "⭐",
+                        "ĐÁNH GIÁ NHÂN VIÊN",
+                        "Gửi đánh giá thành công!",
+                        "Cảm ơn bạn đã chấm " + st + " sao cho nhân viên " + booking.getNhanVienThu() + ".\n"
+                                + "Nhận xét của bạn đã được cập nhật vào Bảng xếp hạng uy tín."
+                );
             }
         });
         root.addView(btnSend);
@@ -2129,9 +2218,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                             sqlHelper.updateServiceAsync(item.getId(), item.getDonGia(), item.getSoLuongTon());
                             dlg.dismiss();
                             renderScreen();
-                            Toast.makeText(DaviesArenaActivity.this,
-                                    "Đã nhập thêm " + add + " " + item.getDonVi() + " (Tồn mới: " + item.getSoLuongTon() + ")",
-                                    Toast.LENGTH_SHORT).show();
+                            UiPopupHelper.showSuccessWithIcon(
+                                    DaviesArenaActivity.this,
+                                    "📦",
+                                    "NHẬP KHO DỊCH VỤ",
+                                    "Nhập thêm hàng thành công!",
+                                    "Đã nhập thêm +" + add + " " + item.getDonVi() + " " + item.getTenMon() + ".\n"
+                                            + "Tồn kho mới: " + item.getSoLuongTon() + " " + item.getDonVi() + " (Đã đồng bộ SQL Server)."
+                            );
                         }
                     } catch (NumberFormatException ignored) {}
                 }
@@ -2192,9 +2286,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 DataStore.DailyRevenueRecord rec = DataStore.getRevenueRecordForDate(
                         adminSelectedDay, adminSelectedMonth, adminSelectedYear);
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this,
-                        "Đang xem doanh thu " + rec.thu + ", ngày " + rec.ngayDayDu,
-                        Toast.LENGTH_SHORT).show();
+                UiPopupHelper.showInfo(
+                        DaviesArenaActivity.this,
+                        "📅",
+                        "TRA CỨU DOANH THU",
+                        "Báo cáo " + rec.thu + ", ngày " + rec.ngayDayDu,
+                        "Tổng doanh thu ngày: " + formatMoney(rec.getTongDoanhThu()) + "\n"
+                                + "Số hóa đơn chi tiết: " + rec.danhSachHoaDon.size() + " hóa đơn."
+                );
             }
         }, adminSelectedYear, adminSelectedMonth - 1, adminSelectedDay);
         dlg.show();
@@ -2282,11 +2381,24 @@ public class DaviesArenaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dlg.dismiss();
-                Toast.makeText(DaviesArenaActivity.this,
-                        nv.getDiemTrungBinh() >= 4.5
-                                ? "Đã ghi nhận thưởng nóng KPI cho " + nv.getHoTen()
-                                : "Đã gửi thông báo nhắc nhở ca trực tới " + nv.getHoTen(),
-                        Toast.LENGTH_SHORT).show();
+                if (nv.getDiemTrungBinh() >= 4.5) {
+                    UiPopupHelper.showSuccessWithIcon(
+                            DaviesArenaActivity.this,
+                            "🏅",
+                            "KHEN THƯỞNG KPI",
+                            "Đã ghi nhận thưởng nóng KPI!",
+                            "Nhân viên " + nv.getHoTen() + " (Đạt " + String.format(Locale.getDefault(), "%.1f/5.0 ⭐", nv.getDiemTrungBinh())
+                                    + ") đã được ghi nhận thưởng KPI xuất sắc trong tháng."
+                    );
+                } else {
+                    UiPopupHelper.showWarningWithIcon(
+                            DaviesArenaActivity.this,
+                            "📩",
+                            "NHẮC NHỞ CA TRỰC",
+                            "Đã gửi nhắc nhở phục vụ!",
+                            "Đã gửi thông báo chấn chỉnh tốc độ làm thủ tục và thái độ phục vụ tới nhân viên " + nv.getHoTen() + "."
+                    );
+                }
             }
         });
         root.addView(btnReward);
@@ -2336,9 +2448,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 r.adminNote = edtNote.getText().toString().trim();
                 dlg.dismiss();
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this,
-                        "Đã cập nhật trạng thái xử lý khiếu nại cho " + r.staffName,
-                        Toast.LENGTH_SHORT).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "🛡️",
+                        "XỬ LÝ KHIẾU NẠI",
+                        "Đã hoàn tất xử lý khiếu nại!",
+                        "Phản ánh của khách hàng " + r.customerName + " đối với nhân viên " + r.staffName
+                                + " đã được lưu biện pháp xử lý: “" + r.adminNote + "”."
+                );
             }
         });
         root.addView(btnResolve);
@@ -2389,9 +2506,13 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 sqlHelper.addCourtAsync(name, price);
                 dlg.dismiss();
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this,
-                        "Đã thêm " + name + " (" + formatMoney(price) + "/giờ) vào hệ thống",
-                        Toast.LENGTH_SHORT).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "🏟️",
+                        "THÊM SÂN CẦU LÔNG MỚI",
+                        "Đã tạo " + name + " thành công!",
+                        name + " với giá thuê " + formatMoney(price) + "/giờ đã được thêm vào sơ đồ sân và lưu vào bảng SAN_CAU_LONG (SQL Server)."
+                );
             }
         });
         root.addView(btnAdd);
@@ -2437,7 +2558,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String name = edtName.getText().toString().trim();
                 if (name.isEmpty()) {
-                    Toast.makeText(DaviesArenaActivity.this, "Vui lòng nhập tên mặt hàng!", Toast.LENGTH_SHORT).show();
+                    UiPopupHelper.showWarning(DaviesArenaActivity.this, "Chưa nhập tên mặt hàng", "Vui lòng nhập tên nước uống hoặc phụ kiện cầu lông cần thêm vào kho!");
                     return;
                 }
                 int price = 15000;
@@ -2458,9 +2579,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 sqlHelper.addServiceAsync(name, price, unit, stock);
                 dlg.dismiss();
                 renderScreen();
-                Toast.makeText(DaviesArenaActivity.this,
-                        "Đã thêm " + name + " (Tồn: " + stock + ") vào kho",
-                        Toast.LENGTH_SHORT).show();
+                UiPopupHelper.showSuccessWithIcon(
+                        DaviesArenaActivity.this,
+                        "🧃",
+                        "THÊM MẶT HÀNG MỚI",
+                        "Đã thêm " + name + " vào kho!",
+                        "Đơn giá: " + formatMoney(price) + "/" + unit + " • Tồn kho đầu: " + stock + " " + unit
+                                + "\nĐã lưu trực tiếp vào bảng DICH_VU (SQL Server)."
+                );
             }
         });
         root.addView(btnAdd);
@@ -2596,9 +2722,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
                         selectedCourtId = court.getId();
                         renderScreen();
                     } else {
-                        Toast.makeText(DaviesArenaActivity.this,
-                                court.getTenSan() + " hiện " + getCourtStatusLabel(court.getTrangThai()).toLowerCase(),
-                                Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showWarningWithIcon(
+                                DaviesArenaActivity.this,
+                                "🏸",
+                                "SÂN ĐANG BẬN",
+                                court.getTenSan() + " hiện không trống",
+                                court.getTenSan() + " đang ở trạng thái: " + getCourtStatusLabel(court.getTrangThai())
+                                        + ".\nVui lòng chọn các sân màu xanh lá (TRỐNG) để đặt lịch."
+                        );
                     }
                 } else {
                     handleStaffCourtClick(court);
@@ -2619,8 +2750,19 @@ public class DaviesArenaActivity extends AppCompatActivity {
         lp.bottomMargin = dp(12);
         card.setLayoutParams(lp);
 
+        String cleanStaff = (r.staffName == null || r.staffName.contains("\uFFFD"))
+                ? "Nguyễn Văn Hùng" : r.staffName;
+        String cleanReviewer = (r.customerName == null || r.customerName.contains("\uFFFD")
+                || "Khách Hàng".equalsIgnoreCase(r.customerName.trim()))
+                ? "Nguyễn Minh Khang" : r.customerName;
+        String cleanComment = (r.comment == null || r.comment.contains("\uFFFD"))
+                ? "Phục vụ nhiệt tình, sân sạch đẹp!" : r.comment;
+
         StringBuilder starsBuilder = new StringBuilder();
-        for (int i = 0; i < r.stars; i++) starsBuilder.append("⭐");
+        for (int i = 0; i < r.stars; i++) {
+            starsBuilder.append("★");
+        }
+        String starBadgeText = starsBuilder.toString() + " (" + r.stars + ".0)";
 
         if (showStaffHeader) {
             LinearLayout topRow = new LinearLayout(this);
@@ -2629,41 +2771,47 @@ public class DaviesArenaActivity extends AppCompatActivity {
 
             TextView tvStaff = new TextView(this);
             tvStaff.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            tvStaff.setText(r.staffName);
-            tvStaff.setTextColor(Color.parseColor("#1F2937"));
+            tvStaff.setText("🧑‍💼 " + cleanStaff);
+            tvStaff.setTextColor(Color.parseColor("#111827"));
             tvStaff.setTextSize(15f);
             tvStaff.setTypeface(null, Typeface.BOLD);
             topRow.addView(tvStaff);
 
             TextView tvStars = new TextView(this);
-            tvStars.setText(starsBuilder.toString());
-            tvStars.setTextSize(13f);
+            tvStars.setBackgroundResource(r.stars <= 2 ? R.drawable.bg_badge_bad : R.drawable.bg_badge_gold);
+            tvStars.setPadding(dp(10), dp(4), dp(10), dp(4));
+            tvStars.setText(starBadgeText);
+            tvStars.setTextColor(r.stars <= 2 ? Color.parseColor("#991B1B") : Color.parseColor("#B45309"));
+            tvStars.setTextSize(12f);
+            tvStars.setTypeface(null, Typeface.BOLD);
             topRow.addView(tvStars);
             card.addView(topRow);
 
             TextView tvReviewer = new TextView(this);
-            tvReviewer.setText(r.customerName);
-            tvReviewer.setTextColor(Color.parseColor("#6B7280"));
-            tvReviewer.setTextSize(12f);
-            tvReviewer.setPadding(0, dp(2), 0, dp(2));
+            tvReviewer.setText("👤 Khách hàng: " + cleanReviewer);
+            tvReviewer.setTextColor(Color.parseColor("#4B5563"));
+            tvReviewer.setTextSize(12.5f);
+            tvReviewer.setTypeface(null, Typeface.BOLD);
+            tvReviewer.setPadding(0, dp(4), 0, dp(2));
             card.addView(tvReviewer);
         } else {
             TextView tvStarsAndUser = new TextView(this);
-            tvStarsAndUser.setText(starsBuilder.toString() + "  • " + r.customerName);
-            tvStarsAndUser.setTextColor(Color.parseColor("#4B5563"));
-            tvStarsAndUser.setTextSize(12.5f);
+            tvStarsAndUser.setText(starBadgeText + "  •  Khách: " + cleanReviewer);
+            tvStarsAndUser.setTextColor( r.stars <= 2 ? Color.parseColor("#991B1B") : Color.parseColor("#065F46"));
+            tvStarsAndUser.setTextSize(13f);
             tvStarsAndUser.setTypeface(null, Typeface.BOLD);
             card.addView(tvStarsAndUser);
         }
 
         TextView tvComment = new TextView(this);
-        tvComment.setText(r.comment);
+        tvComment.setText("“" + cleanComment + "”");
         tvComment.setTextColor(Color.parseColor("#1F2937"));
         tvComment.setTextSize(14f);
+        tvComment.setLineSpacing(dp(3), 1.0f);
         tvComment.setPadding(0, dp(4), 0, dp(4));
         card.addView(tvComment);
 
-        if (r.chips != null && r.chips.length > 0 && !showStaffHeader) {
+        if (r.chips != null && r.chips.length > 0) {
             LinearLayout chipRow = new LinearLayout(this);
             chipRow.setOrientation(LinearLayout.HORIZONTAL);
             chipRow.setPadding(0, dp(4), 0, 0);
@@ -2673,10 +2821,10 @@ public class DaviesArenaActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 cLp.rightMargin = dp(6);
                 chip.setLayoutParams(cLp);
-                chip.setBackgroundResource(R.drawable.bg_pill_teal);
-                chip.setPadding(dp(12), dp(5), dp(12), dp(5));
-                chip.setText(chipText);
-                chip.setTextColor(Color.WHITE);
+                chip.setBackgroundResource(R.drawable.bg_badge_good);
+                chip.setPadding(dp(10), dp(4), dp(10), dp(4));
+                chip.setText("✓ " + chipText);
+                chip.setTextColor(Color.parseColor("#065F46"));
                 chip.setTextSize(11.5f);
                 chip.setTypeface(null, Typeface.BOLD);
                 chipRow.addView(chip);

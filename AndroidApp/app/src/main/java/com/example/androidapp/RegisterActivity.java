@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -45,18 +44,28 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = edtRegEmail.getText().toString().trim();
-                String user = edtRegUser.getText().toString().trim();
+                final String email = edtRegEmail.getText().toString().trim();
+                final String user = edtRegUser.getText().toString().trim();
                 String pass = edtRegPass.getText().toString().trim();
                 String confirmPass = edtRegConfirmPass.getText().toString().trim();
 
                 if (email.isEmpty() || user.isEmpty() || pass.isEmpty() || confirmPass.isEmpty()) {
-                    Toast.makeText(RegisterActivity.this, "Vui lòng nhập đầy đủ tất cả thông tin!", Toast.LENGTH_SHORT).show();
+                    UiPopupHelper.showWarningWithIcon(
+                            RegisterActivity.this,
+                            "⚠️",
+                            "THIẾU THÔNG TIN",
+                            "Chưa nhập đủ thông tin",
+                            "Vui lòng điền đầy đủ Số điện thoại/Email, Tên tài khoản và Mật khẩu để đăng ký."
+                    );
                     return;
                 }
 
                 if (!pass.equals(confirmPass)) {
-                    Toast.makeText(RegisterActivity.this, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show();
+                    UiPopupHelper.showError(
+                            RegisterActivity.this,
+                            "Mật khẩu không khớp",
+                            "Mật khẩu xác nhận không trùng khớp với mật khẩu đã nhập. Vui lòng kiểm tra lại!"
+                    );
                     return;
                 }
 
@@ -65,14 +74,31 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String message) {
                         btnRegSignIn.setEnabled(true);
-                        Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
-                        finish();
+                        UiPopupHelper.showSuccessWithAction(
+                                RegisterActivity.this,
+                                "🎉",
+                                "ĐĂNG KÝ THÀNH CÔNG",
+                                "Tạo tài khoản thành công!",
+                                "Tài khoản @" + user + " (" + email + ") đã được lưu vào bảng NGUOI_DUNG trong SQL Server.\nBạn có thể đăng nhập ngay bây giờ.",
+                                "Quay lại Đăng nhập",
+                                1800,
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        finish();
+                                    }
+                                }
+                        );
                     }
 
                     @Override
                     public void onError(String message) {
                         btnRegSignIn.setEnabled(true);
-                        Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
+                        UiPopupHelper.showError(
+                                RegisterActivity.this,
+                                "Đăng ký không thành công",
+                                message
+                        );
                     }
                 });
             }

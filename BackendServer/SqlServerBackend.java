@@ -162,7 +162,7 @@ public class SqlServerBackend {
     private static String runSqlCmd(String query) {
         try {
             ProcessBuilder pb = new ProcessBuilder(
-                    "sqlcmd", "-S", SQL_SERVER, "-d", DB_NAME, "-h", "-1", "-W", "-f", "65001", "-Q", query
+                    "sqlcmd", "-S", SQL_SERVER, "-d", DB_NAME, "-h", "-1", "-W", "-f", "o:65001", "-Q", query
             );
             pb.redirectErrorStream(true);
             Process p = pb.start();
