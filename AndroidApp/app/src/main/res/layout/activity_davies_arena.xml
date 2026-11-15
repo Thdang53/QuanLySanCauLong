@@ -321,7 +321,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Danh Sách Sân Cầu Lông (Bấm để chọn)"
+                    android:text="Danh sách sân cầu lông"
                     android:textColor="@color/text_main"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -736,7 +736,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:layout_marginBottom="6dp"
-                    android:text="🏆 Bảng Xếp Hạng Nhân Viên (Staff Leaderboard)"
+                    android:text="🏆 Bảng xếp hạng nhân viên"
                     android:textColor="@color/text_main"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -751,7 +751,7 @@
                     android:dividerHeight="0dp"
                     android:scrollbars="none" />
 
-                <!-- Nút CTA hồng bo tròn dưới đáy giống Hình 2 phải -->
+                <!-- Nút Đăng xuất gọn gàng dưới đáy -->
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnLogoutBack"
                     android:layout_width="match_parent"
@@ -759,10 +759,10 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_pill_coral"
                     android:stateListAnimator="@null"
-                    android:text="🚪 Đăng Xuất / Đổi Tài Khoản Khác  ›"
+                    android:text="Đăng xuất"
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>

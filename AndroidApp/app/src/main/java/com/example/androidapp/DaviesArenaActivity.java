@@ -336,16 +336,16 @@ public class DaviesArenaActivity extends AppCompatActivity {
         tvProfileName.setText(currentUserName);
 
         if ("CUSTOMER".equals(currentRole)) {
-            tvCurrentRoleBadge.setText("Vai trò: 🏸 Khách hàng (Đặt sân & Chấm sao)");
-            tvProfileRoleSub.setText("📍 Davies Arena • Khách hàng O2O");
+            tvCurrentRoleBadge.setText("Vai trò: Khách hàng");
+            tvProfileRoleSub.setText("Davies Arena • Khách hàng");
             btnAddCourtAdmin.setVisibility(View.GONE);
         } else if ("STAFF".equals(currentRole)) {
-            tvCurrentRoleBadge.setText("Vai trò: 👨‍💼 Nhân viên trực quầy (Duyệt cọc & Check-out)");
-            tvProfileRoleSub.setText("📍 Davies Arena • Thu ngân trực ca");
+            tvCurrentRoleBadge.setText("Vai trò: Nhân viên");
+            tvProfileRoleSub.setText("Davies Arena • Nhân viên trực quầy");
             btnAddCourtAdmin.setVisibility(View.GONE);
         } else {
-            tvCurrentRoleBadge.setText("Vai trò: 👑 Chủ sân Admin (Sửa giá & Quản trị KPI)");
-            tvProfileRoleSub.setText("📍 Davies Arena • Quản trị viên hệ thống");
+            tvCurrentRoleBadge.setText("Vai trò: Quản lý");
+            tvProfileRoleSub.setText("Davies Arena • Quản lý sân");
             btnAddCourtAdmin.setVisibility(View.VISIBLE);
         }
     }

@@ -88,7 +88,7 @@ public class SqlServerBackend {
         try {
             ProcessBuilder pb = new ProcessBuilder(
                     "sqlcmd", "-S", SQL_SERVER_INSTANCE, "-E", "-d", DATABASE_NAME,
-                    "-h", "-1", "-W", "-Q", sql
+                    "-f", "65001", "-h", "-1", "-W", "-Q", sql
             );
             pb.redirectErrorStream(true);
             Process p = pb.start();
