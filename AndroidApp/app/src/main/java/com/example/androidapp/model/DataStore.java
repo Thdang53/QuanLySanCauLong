@@ -27,6 +27,8 @@ public class DataStore {
         public int stars;
         public String comment;
         public String[] chips;
+        public boolean resolved = false;
+        public String adminNote = "";
 
         public ReviewItem(int staffIndex, String staffName, String customerName, int stars, String comment, String[] chips) {
             this.staffIndex = staffIndex;

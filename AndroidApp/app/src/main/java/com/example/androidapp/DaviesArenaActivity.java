@@ -39,6 +39,7 @@ import com.example.androidapp.model.DichVuKho;
 import com.example.androidapp.model.LichDatSan;
 import com.example.androidapp.model.NhanVienUyTin;
 import com.example.androidapp.model.SanCauLong;
+import com.example.androidapp.model.SqlServerHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +48,7 @@ import java.util.Locale;
 
 public class DaviesArenaActivity extends AppCompatActivity {
 
+    private final SqlServerHelper sqlHelper = new SqlServerHelper();
     private String currentRole = "CUSTOMER";
     private String currentUserName = "Nguyễn Minh Khang";
     private int currentTab = 0;
@@ -766,14 +768,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
     // ==================== ROLE 3: CHỦ SÂN / ADMIN ====================
 
     /**
-     * Tab 0 Admin: Tổng quan doanh thu + Biểu đồ cột theo ngày (Giống hệt Ảnh 9)
+     * Tab 0 Admin: Tổng quan doanh thu + Biểu đồ cột theo ngày (Giống hệt Ảnh 9 + bấm xem chi tiết từng mục)
      */
     private void renderAdminRevenueTab() {
         tvHeaderTitle.setText("Tổng quan doanh thu");
         tvHeaderSub.setText("Hôm nay • tự cập nhật từ quầy");
         tvHeaderGlass.setVisibility(View.GONE);
 
-        int totalRev = DataStore.getTongDoanhThu();
+        final int totalRev = DataStore.getTongDoanhThu();
 
         // Thẻ xanh đậm #064E3B: Tổng doanh thu hôm nay
         LinearLayout heroCard = new LinearLayout(this);
@@ -786,7 +788,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
         heroCard.setLayoutParams(heroLp);
 
         TextView tvHeroSub = new TextView(this);
-        tvHeroSub.setText("Tổng doanh thu hôm nay");
+        tvHeroSub.setText("Tổng doanh thu hôm nay (Chạm xem chi tiết)");
         tvHeroSub.setTextColor(Color.parseColor("#D1FAE5"));
         tvHeroSub.setTextSize(12.5f);
         heroCard.addView(tvHeroSub);
@@ -798,6 +800,12 @@ public class DaviesArenaActivity extends AppCompatActivity {
         tvHeroTotal.setTypeface(null, Typeface.BOLD);
         tvHeroTotal.setPadding(0, dp(2), 0, 0);
         heroCard.addView(tvHeroTotal);
+        heroCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAdminRevenueDetailModal();
+            }
+        });
         containerDynamicBody.addView(heroCard);
 
         // Lưới 2x2: Tiền cọc 30% qua QR | Tiền thu tại quầy | Bán nước/phụ kiện | Số đơn hoàn thành
@@ -812,15 +820,47 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         rowLp.bottomMargin = dp(10);
         row1.setLayoutParams(rowLp);
-        row1.addView(createKpiMiniCard("Tiền cọc 30% qua QR", formatMoney(DataStore.doanhThuCocQR), true));
-        row1.addView(createKpiMiniCard("Tiền thu tại quầy", formatMoney(DataStore.doanhThuTaiQuay), false));
+
+        LinearLayout kpiCoc = createKpiMiniCard("Tiền cọc 30% qua QR", formatMoney(DataStore.doanhThuCocQR), true);
+        kpiCoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAdminRevenueDetailModal();
+            }
+        });
+        row1.addView(kpiCoc);
+
+        LinearLayout kpiQuay = createKpiMiniCard("Tiền thu tại quầy", formatMoney(DataStore.doanhThuTaiQuay), false);
+        kpiQuay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAdminRevenueDetailModal();
+            }
+        });
+        row1.addView(kpiQuay);
         containerDynamicBody.addView(row1);
 
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setLayoutParams(rowLp);
-        row2.addView(createKpiMiniCard("Bán nước/phụ kiện", formatMoney(DataStore.doanhThuDichVu), true));
-        row2.addView(createKpiMiniCard("Số đơn hoàn thành", String.valueOf(doneCount), false));
+
+        LinearLayout kpiDichVu = createKpiMiniCard("Bán nước/phụ kiện", formatMoney(DataStore.doanhThuDichVu), true);
+        kpiDichVu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAdminRevenueDetailModal();
+            }
+        });
+        row2.addView(kpiDichVu);
+
+        LinearLayout kpiDon = createKpiMiniCard("Số đơn hoàn thành", String.valueOf(doneCount), false);
+        kpiDon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAdminRevenueDetailModal();
+            }
+        });
+        row2.addView(kpiDon);
         containerDynamicBody.addView(row2);
 
         // Biểu đồ Doanh thu theo ngày (nghìn đồng)
@@ -832,7 +872,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
         barContainer.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(150)));
 
-        String[] days = {"T2", "T3", "T4", "T5", "T6", "T7", "CN"};
+        final String[] days = {"T2", "T3", "T4", "T5", "T6", "T7", "CN"};
         DataStore.doanhThuTuan[6] = totalRev / 1000;
         int maxVal = 1250;
         for (int v : DataStore.doanhThuTuan) {
@@ -840,7 +880,8 @@ public class DaviesArenaActivity extends AppCompatActivity {
         }
 
         for (int i = 0; i < 7; i++) {
-            int val = DataStore.doanhThuTuan[i];
+            final int dayIdx = i;
+            final int val = DataStore.doanhThuTuan[i];
             LinearLayout col = new LinearLayout(this);
             col.setOrientation(LinearLayout.VERTICAL);
             col.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
@@ -870,6 +911,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
             tvVal.setTypeface(null, Typeface.BOLD);
             col.addView(tvVal);
 
+            col.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(DaviesArenaActivity.this,
+                            "Doanh thu " + days[dayIdx] + ": " + formatMoney(val * 1000),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
             barContainer.addView(col);
         }
         chartCard.addView(barContainer);
@@ -877,7 +927,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
     }
 
     /**
-     * Tab 1 Admin: Bảng xếp hạng nhân viên + Lịch sử đánh giá khách hàng (Giống hệt Ảnh 10)
+     * Tab 1 Admin: Bảng xếp hạng nhân viên + Lịch sử đánh giá khách hàng (Giống hệt Ảnh 10 + bấm xem KPI & xử lý khiếu nại)
      */
     private void renderAdminLeaderboardTab() {
         tvHeaderTitle.setText("Bảng xếp hạng");
@@ -894,7 +944,8 @@ public class DaviesArenaActivity extends AppCompatActivity {
 
         String[] medals = {"🥇", "🥈", "🥉"};
         for (int i = 0; i < sorted.size(); i++) {
-            NhanVienUyTin nv = sorted.get(i);
+            final int rank = i + 1;
+            final NhanVienUyTin nv = sorted.get(i);
             LinearLayout card = createWhiteCard();
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -911,14 +962,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
             infoCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView tvRankName = new TextView(this);
-            tvRankName.setText("Hạng " + (i + 1) + ": " + nv.getHoTen());
+            tvRankName.setText("Hạng " + rank + ": " + nv.getHoTen());
             tvRankName.setTextColor(Color.parseColor("#1F2937"));
             tvRankName.setTextSize(15f);
             tvRankName.setTypeface(null, Typeface.BOLD);
             infoCol.addView(tvRankName);
 
             TextView tvVotes = new TextView(this);
-            tvVotes.setText(nv.getSoLuotDanhGia() + " lượt đánh giá");
+            tvVotes.setText(nv.getSoLuotDanhGia() + " lượt đánh giá • " + nv.getChucVu());
             tvVotes.setTextColor(Color.parseColor("#6B7280"));
             tvVotes.setTextSize(12f);
             infoCol.addView(tvVotes);
@@ -932,6 +983,12 @@ public class DaviesArenaActivity extends AppCompatActivity {
             row.addView(tvAvg);
 
             card.addView(row);
+            card.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showAdminStaffKpiModal(nv, rank);
+                }
+            });
             containerDynamicBody.addView(card);
         }
 
@@ -942,7 +999,7 @@ public class DaviesArenaActivity extends AppCompatActivity {
     }
 
     /**
-     * Tab 2 Admin: Quản lý sân & giá (Giống hệt Ảnh 11)
+     * Tab 2 Admin: Quản lý sân & giá (Giống hệt Ảnh 11 + Lưu giá SQL Server + Bảo trì + Modal Thêm sân)
      */
     private void renderAdminCourtsAndPriceTab() {
         tvHeaderTitle.setText("Quản lý sân & giá");
@@ -968,7 +1025,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
             card.addView(topRow);
 
             card.addView(createFieldLabel("Giá thuê mỗi giờ (VNĐ)"));
+
+            LinearLayout priceRow = new LinearLayout(this);
+            priceRow.setOrientation(LinearLayout.HORIZONTAL);
+            priceRow.setGravity(Gravity.CENTER_VERTICAL);
+
             final EditText edtPrice = createEditableNumberBox(String.valueOf(c.getGiaMoiGio()));
+            LinearLayout.LayoutParams edtLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            edtLp.rightMargin = dp(8);
+            edtPrice.setLayoutParams(edtLp);
             edtPrice.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -986,7 +1051,37 @@ public class DaviesArenaActivity extends AppCompatActivity {
                     }
                 }
             });
-            card.addView(edtPrice);
+            priceRow.addView(edtPrice);
+
+            TextView btnSavePrice = new TextView(this);
+            btnSavePrice.setBackgroundResource(R.drawable.bg_pill_teal);
+            btnSavePrice.setPadding(dp(14), dp(10), dp(14), dp(10));
+            btnSavePrice.setText("Lưu giá");
+            btnSavePrice.setTextColor(Color.WHITE);
+            btnSavePrice.setTextSize(12.5f);
+            btnSavePrice.setTypeface(null, Typeface.BOLD);
+            btnSavePrice.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String val = edtPrice.getText().toString().trim();
+                    if (val.isEmpty()) {
+                        Toast.makeText(DaviesArenaActivity.this, "Vui lòng nhập giá thuê hợp lệ!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        int newPrice = Integer.parseInt(val);
+                        c.setGiaMoiGio(newPrice);
+                        sqlHelper.updateCourtAsync(c.getId(), newPrice, c.getTrangThai());
+                        Toast.makeText(DaviesArenaActivity.this,
+                                "Đã lưu giá " + c.getTenSan() + ": " + formatMoney(newPrice) + "/giờ (Đồng bộ SQL Server)",
+                                Toast.LENGTH_SHORT).show();
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(DaviesArenaActivity.this, "Giá thuê không hợp lệ!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            priceRow.addView(btnSavePrice);
+            card.addView(priceRow);
 
             boolean isMaint = "BAO_TRI".equals(c.getTrangThai());
             AppCompatButton btnMaint = isMaint
@@ -997,12 +1092,20 @@ public class DaviesArenaActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     if ("BAO_TRI".equals(c.getTrangThai())) {
                         c.setTrangThai("TRONG");
+                        sqlHelper.updateCourtAsync(c.getId(), c.getGiaMoiGio(), "TRONG");
                         renderScreen();
+                        Toast.makeText(DaviesArenaActivity.this,
+                                "Đã kết thúc bảo trì – " + c.getTenSan() + " sẵn sàng đón khách",
+                                Toast.LENGTH_SHORT).show();
                     } else if ("TRONG".equals(c.getTrangThai())) {
                         c.setTrangThai("BAO_TRI");
+                        sqlHelper.updateCourtAsync(c.getId(), c.getGiaMoiGio(), "BAO_TRI");
                         renderScreen();
+                        Toast.makeText(DaviesArenaActivity.this,
+                                "Đã bật chế độ Bảo trì cho " + c.getTenSan(),
+                                Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(DaviesArenaActivity.this, "Sân đang có khách, chưa thể bảo trì", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DaviesArenaActivity.this, "Sân đang có khách hoặc đã cọc, chưa thể bảo trì", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -1015,17 +1118,14 @@ public class DaviesArenaActivity extends AppCompatActivity {
         btnAddCourt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int newId = DataStore.listSan.size() + 1;
-                DataStore.listSan.add(new SanCauLong(newId, "Sân " + newId, "Sân tiêu chuẩn mới", 80000, 5.0, "TRONG"));
-                renderScreen();
-                Toast.makeText(DaviesArenaActivity.this, "Đã thêm Sân " + newId, Toast.LENGTH_SHORT).show();
+                showAdminAddCourtModal();
             }
         });
         containerDynamicBody.addView(btnAddCourt);
     }
 
     /**
-     * Tab 3 Admin: Kho dịch vụ (Giống hệt Ảnh 12 + kèm hình ảnh sản phẩm trực quan)
+     * Tab 3 Admin: Kho dịch vụ (Giống hệt Ảnh 12 + kèm hình ảnh sản phẩm trực quan + Lưu giá SQL Server + Thêm mặt hàng mới)
      */
     private void renderAdminInventoryTab() {
         tvHeaderTitle.setText("Kho dịch vụ");
@@ -1069,7 +1169,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
             card.addView(topRow);
 
             card.addView(createFieldLabel("Đơn giá (VNĐ)"));
-            EditText edtPrice = createEditableNumberBox(String.valueOf(item.getDonGia()));
+
+            LinearLayout priceRow = new LinearLayout(this);
+            priceRow.setOrientation(LinearLayout.HORIZONTAL);
+            priceRow.setGravity(Gravity.CENTER_VERTICAL);
+
+            final EditText edtPrice = createEditableNumberBox(String.valueOf(item.getDonGia()));
+            LinearLayout.LayoutParams edtLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            edtLp.rightMargin = dp(8);
+            edtPrice.setLayoutParams(edtLp);
             edtPrice.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -1087,7 +1195,37 @@ public class DaviesArenaActivity extends AppCompatActivity {
                     }
                 }
             });
-            card.addView(edtPrice);
+            priceRow.addView(edtPrice);
+
+            TextView btnSavePrice = new TextView(this);
+            btnSavePrice.setBackgroundResource(R.drawable.bg_pill_teal);
+            btnSavePrice.setPadding(dp(14), dp(10), dp(14), dp(10));
+            btnSavePrice.setText("Lưu giá");
+            btnSavePrice.setTextColor(Color.WHITE);
+            btnSavePrice.setTextSize(12.5f);
+            btnSavePrice.setTypeface(null, Typeface.BOLD);
+            btnSavePrice.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String val = edtPrice.getText().toString().trim();
+                    if (val.isEmpty()) {
+                        Toast.makeText(DaviesArenaActivity.this, "Vui lòng nhập đơn giá hợp lệ!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        int newPrice = Integer.parseInt(val);
+                        item.setDonGia(newPrice);
+                        sqlHelper.updateServiceAsync(item.getId(), newPrice, item.getSoLuongTon());
+                        Toast.makeText(DaviesArenaActivity.this,
+                                "Đã cập nhật giá " + item.getTenMon() + ": " + formatMoney(newPrice),
+                                Toast.LENGTH_SHORT).show();
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(DaviesArenaActivity.this, "Đơn giá không hợp lệ!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            priceRow.addView(btnSavePrice);
+            card.addView(priceRow);
 
             AppCompatButton btnRestock = createOutlinePillButton("+ Nhập thêm hàng");
             btnRestock.setOnClickListener(new View.OnClickListener() {
@@ -1100,6 +1238,15 @@ public class DaviesArenaActivity extends AppCompatActivity {
 
             containerDynamicBody.addView(card);
         }
+
+        AppCompatButton btnAddService = createPrimaryPillButton("+ Thêm mặt hàng mới");
+        btnAddService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAdminAddServiceModal();
+            }
+        });
+        containerDynamicBody.addView(btnAddService);
     }
 
     // ==================== MODALS VẬN HÀNH SÂN, GỌI NƯỚC CÓ ẢNH & CHẤM SAO ====================
@@ -1525,19 +1672,278 @@ public class DaviesArenaActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String s = edtQty.getText().toString().trim();
                 if (!s.isEmpty()) {
-                    int add = Integer.parseInt(s);
-                    if (add > 0) {
-                        item.setSoLuongTon(item.getSoLuongTon() + add);
-                        dlg.dismiss();
-                        renderScreen();
-                        Toast.makeText(DaviesArenaActivity.this, "Đã nhập thêm " + add + " " + item.getDonVi(), Toast.LENGTH_SHORT).show();
-                    }
+                    try {
+                        int add = Integer.parseInt(s);
+                        if (add > 0) {
+                            item.setSoLuongTon(item.getSoLuongTon() + add);
+                            sqlHelper.updateServiceAsync(item.getId(), item.getDonGia(), item.getSoLuongTon());
+                            dlg.dismiss();
+                            renderScreen();
+                            Toast.makeText(DaviesArenaActivity.this,
+                                    "Đã nhập thêm " + add + " " + item.getDonVi() + " (Tồn mới: " + item.getSoLuongTon() + ")",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (NumberFormatException ignored) {}
                 }
             }
         });
         root.addView(btnOk);
 
         AppCompatButton btnClose = createOutlinePillButton("Đóng");
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dlg.dismiss();
+            }
+        });
+        root.addView(btnClose);
+        dlg.show();
+    }
+
+    private void showAdminRevenueDetailModal() {
+        LinearLayout root = createModalContainer();
+        root.addView(createModalTitle("Chi tiết doanh thu hôm nay"));
+
+        int doneCount = 0;
+        for (LichDatSan b : DataStore.listLichDat) {
+            if ("HOAN_THANH".equals(b.getTrangThai())) doneCount++;
+        }
+
+        LinearLayout mintBox = new LinearLayout(this);
+        mintBox.setOrientation(LinearLayout.VERTICAL);
+        mintBox.setBackgroundResource(R.drawable.bg_note_mint);
+        mintBox.setPadding(dp(14), dp(12), dp(14), dp(12));
+        mintBox.addView(createKeyValueRow("Tiền cọc 30% qua VietQR", formatMoney(DataStore.doanhThuCocQR), false));
+        mintBox.addView(createKeyValueRow("Tiền sân thu thêm tại quầy", formatMoney(DataStore.doanhThuTaiQuay), false));
+        mintBox.addView(createKeyValueRow("Doanh thu nước & phụ kiện", formatMoney(DataStore.doanhThuDichVu), false));
+        mintBox.addView(createKeyValueRow("Số đơn đã hoàn thành", doneCount + " đơn", false));
+        mintBox.addView(createKeyValueRow("TỔNG DOANH THU NGÀY", formatMoney(DataStore.getTongDoanhThu()), true));
+        root.addView(mintBox);
+
+        root.addView(createMintNote("Số liệu tự động cộng dồn thời gian thực khi nhân viên duyệt cọc VietQR và chốt hóa đơn Check-out tại quầy."));
+
+        final AlertDialog dlg = new AlertDialog.Builder(this).setView(root).create();
+        AppCompatButton btnClose = createPrimaryPillButton("Đóng bảng kê");
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dlg.dismiss();
+            }
+        });
+        root.addView(btnClose);
+        dlg.show();
+    }
+
+    private void showAdminStaffKpiModal(final NhanVienUyTin nv, int rank) {
+        LinearLayout root = createModalContainer();
+        root.addView(createModalTitle("Hồ sơ KPI • Hạng " + rank));
+
+        LinearLayout mintBox = new LinearLayout(this);
+        mintBox.setOrientation(LinearLayout.VERTICAL);
+        mintBox.setBackgroundResource(R.drawable.bg_note_mint);
+        mintBox.setPadding(dp(14), dp(12), dp(14), dp(12));
+        mintBox.addView(createKeyValueRow("Họ và tên", nv.getHoTen(), false));
+        mintBox.addView(createKeyValueRow("Ca làm việc", nv.getChucVu(), false));
+        mintBox.addView(createKeyValueRow("Tổng lượt khách chấm", nv.getSoLuotDanhGia() + " lượt", false));
+        mintBox.addView(createKeyValueRow("Điểm uy tín trung bình",
+                String.format(Locale.getDefault(), "%.1f / 5.0 ⭐", nv.getDiemTrungBinh()), true));
+        root.addView(mintBox);
+
+        root.addView(createFieldLabel("Đánh giá gần nhất"));
+        root.addView(createInputBox("“" + nv.getNhanXetGanNhat() + "” (" + nv.getSaoGanNhat() + "⭐)"));
+
+        final AlertDialog dlg = new AlertDialog.Builder(this).setView(root).create();
+
+        AppCompatButton btnReward = createPrimaryPillButton(
+                nv.getDiemTrungBinh() >= 4.5 ? "🏅 Ghi nhận thưởng KPI tháng" : "📩 Gửi nhắc nhở cải thiện phục vụ");
+        btnReward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dlg.dismiss();
+                Toast.makeText(DaviesArenaActivity.this,
+                        nv.getDiemTrungBinh() >= 4.5
+                                ? "Đã ghi nhận thưởng nóng KPI cho " + nv.getHoTen()
+                                : "Đã gửi thông báo nhắc nhở ca trực tới " + nv.getHoTen(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        root.addView(btnReward);
+
+        AppCompatButton btnClose = createOutlinePillButton("Đóng");
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dlg.dismiss();
+            }
+        });
+        root.addView(btnClose);
+        dlg.show();
+    }
+
+    private void showAdminComplaintModal(final DataStore.ReviewItem r) {
+        LinearLayout root = createModalContainer();
+        root.addView(createModalTitle("Xử lý khiếu nại khách hàng"));
+
+        LinearLayout badBox = new LinearLayout(this);
+        badBox.setOrientation(LinearLayout.VERTICAL);
+        badBox.setBackgroundResource(R.drawable.bg_badge_bad);
+        badBox.setPadding(dp(14), dp(12), dp(14), dp(12));
+        badBox.addView(createKeyValueRow("Nhân viên bị phản ánh", r.staffName, false));
+        badBox.addView(createKeyValueRow("Khách hàng đánh giá", r.customerName + " (" + r.stars + "⭐)", false));
+        badBox.addView(createKeyValueRow("Nội dung", r.comment, false));
+        root.addView(badBox);
+
+        root.addView(createFieldLabel("Biện pháp xử lý của Quản lý"));
+        final EditText edtNote = new EditText(this);
+        edtNote.setBackgroundResource(R.drawable.bg_input_field_14);
+        edtNote.setPadding(dp(12), dp(10), dp(12), dp(10));
+        edtNote.setText(r.adminNote.isEmpty()
+                ? "Đã liên hệ xin lỗi khách & nhắc nhở nhân viên rút kinh nghiệm."
+                : r.adminNote);
+        edtNote.setTextColor(Color.parseColor("#1F2937"));
+        edtNote.setTextSize(13.5f);
+        root.addView(edtNote);
+
+        final AlertDialog dlg = new AlertDialog.Builder(this).setView(root).create();
+
+        AppCompatButton btnResolve = createPrimaryPillButton("Xác nhận đã xử lý khiếu nại");
+        btnResolve.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                r.resolved = true;
+                r.adminNote = edtNote.getText().toString().trim();
+                dlg.dismiss();
+                renderScreen();
+                Toast.makeText(DaviesArenaActivity.this,
+                        "Đã cập nhật trạng thái xử lý khiếu nại cho " + r.staffName,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        root.addView(btnResolve);
+
+        AppCompatButton btnClose = createOutlinePillButton("Đóng");
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dlg.dismiss();
+            }
+        });
+        root.addView(btnClose);
+        dlg.show();
+    }
+
+    private void showAdminAddCourtModal() {
+        final int newId = DataStore.listSan.size() + 1;
+        LinearLayout root = createModalContainer();
+        root.addView(createModalTitle("Thêm sân cầu lông mới"));
+
+        root.addView(createFieldLabel("Tên sân mới"));
+        final EditText edtName = new EditText(this);
+        edtName.setBackgroundResource(R.drawable.bg_input_field_14);
+        edtName.setPadding(dp(12), dp(10), dp(12), dp(10));
+        edtName.setText("Sân " + newId);
+        edtName.setTextColor(Color.parseColor("#1F2937"));
+        edtName.setTextSize(14f);
+        root.addView(edtName);
+
+        root.addView(createFieldLabel("Giá thuê mỗi giờ (VNĐ)"));
+        final EditText edtPrice = createEditableNumberBox("80000");
+        root.addView(edtPrice);
+
+        final AlertDialog dlg = new AlertDialog.Builder(this).setView(root).create();
+
+        AppCompatButton btnAdd = createPrimaryPillButton("Tạo sân & Lưu SQL Server");
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = edtName.getText().toString().trim();
+                if (name.isEmpty()) name = "Sân " + newId;
+                int price = 80000;
+                try {
+                    price = Integer.parseInt(edtPrice.getText().toString().trim());
+                } catch (NumberFormatException ignored) {}
+
+                DataStore.listSan.add(new SanCauLong(newId, name, "Sân tiêu chuẩn mới", price, 5.0, "TRONG"));
+                sqlHelper.addCourtAsync(name, price);
+                dlg.dismiss();
+                renderScreen();
+                Toast.makeText(DaviesArenaActivity.this,
+                        "Đã thêm " + name + " (" + formatMoney(price) + "/giờ) vào hệ thống",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        root.addView(btnAdd);
+
+        AppCompatButton btnClose = createOutlinePillButton("Hủy");
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dlg.dismiss();
+            }
+        });
+        root.addView(btnClose);
+        dlg.show();
+    }
+
+    private void showAdminAddServiceModal() {
+        LinearLayout root = createModalContainer();
+        root.addView(createModalTitle("Thêm mặt hàng dịch vụ mới"));
+
+        root.addView(createFieldLabel("Tên nước uống / phụ kiện"));
+        final EditText edtName = new EditText(this);
+        edtName.setBackgroundResource(R.drawable.bg_input_field_14);
+        edtName.setPadding(dp(12), dp(10), dp(12), dp(10));
+        edtName.setHint("VD: Nước tăng lực Redbull");
+        edtName.setText("Trà xanh Không Độ");
+        edtName.setTextColor(Color.parseColor("#1F2937"));
+        edtName.setTextSize(14f);
+        root.addView(edtName);
+
+        root.addView(createFieldLabel("Đơn giá bán (VNĐ)"));
+        final EditText edtPrice = createEditableNumberBox("15000");
+        root.addView(edtPrice);
+
+        root.addView(createFieldLabel("Số lượng nhập kho ban đầu"));
+        final EditText edtStock = createEditableNumberBox("35");
+        root.addView(edtStock);
+
+        final AlertDialog dlg = new AlertDialog.Builder(this).setView(root).create();
+
+        AppCompatButton btnAdd = createPrimaryPillButton("Thêm vào kho & Lưu SQL Server");
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = edtName.getText().toString().trim();
+                if (name.isEmpty()) {
+                    Toast.makeText(DaviesArenaActivity.this, "Vui lòng nhập tên mặt hàng!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int price = 15000;
+                int stock = 30;
+                try {
+                    price = Integer.parseInt(edtPrice.getText().toString().trim());
+                } catch (NumberFormatException ignored) {}
+                try {
+                    stock = Integer.parseInt(edtStock.getText().toString().trim());
+                } catch (NumberFormatException ignored) {}
+
+                int newId = DataStore.listDichVu.size() + 1;
+                String icon = name.toLowerCase().contains("vợt") ? "🎾"
+                        : (name.toLowerCase().contains("cầu") ? "🏸" : "🥤");
+                String unit = icon.equals("🎾") ? "Cây" : (icon.equals("🏸") ? "Quả" : "Chai");
+
+                DataStore.listDichVu.add(new DichVuKho(newId, name, price, unit, stock, icon));
+                sqlHelper.addServiceAsync(name, price, unit, stock);
+                dlg.dismiss();
+                renderScreen();
+                Toast.makeText(DaviesArenaActivity.this,
+                        "Đã thêm " + name + " (Tồn: " + stock + ") vào kho",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        root.addView(btnAdd);
+
+        AppCompatButton btnClose = createOutlinePillButton("Hủy");
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1757,17 +2163,31 @@ public class DaviesArenaActivity extends AppCompatActivity {
         }
 
         if (r.stars <= 2 && showStaffHeader) {
+            final DataStore.ReviewItem reviewRef = r;
             TextView tvWarn = new TextView(this);
             LinearLayout.LayoutParams wLp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             wLp.topMargin = dp(6);
             tvWarn.setLayoutParams(wLp);
-            tvWarn.setBackgroundResource(R.drawable.bg_badge_bad);
-            tvWarn.setPadding(dp(10), dp(6), dp(10), dp(6));
-            tvWarn.setText("⚠️ Cần xử lý khiếu nại");
-            tvWarn.setTextColor(Color.parseColor("#991B1B"));
+            if (r.resolved) {
+                tvWarn.setBackgroundResource(R.drawable.bg_badge_good);
+                tvWarn.setPadding(dp(10), dp(6), dp(10), dp(6));
+                tvWarn.setText("✅ Đã xử lý: " + r.adminNote);
+                tvWarn.setTextColor(Color.parseColor("#065F46"));
+            } else {
+                tvWarn.setBackgroundResource(R.drawable.bg_badge_bad);
+                tvWarn.setPadding(dp(10), dp(6), dp(10), dp(6));
+                tvWarn.setText("⚠️ Cần xử lý khiếu nại (Chạm để xử lý)");
+                tvWarn.setTextColor(Color.parseColor("#991B1B"));
+            }
             tvWarn.setTextSize(12f);
             tvWarn.setTypeface(null, Typeface.BOLD);
+            card.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showAdminComplaintModal(reviewRef);
+                }
+            });
             card.addView(tvWarn);
         }
 

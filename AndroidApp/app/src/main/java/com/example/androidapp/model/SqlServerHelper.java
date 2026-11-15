@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 public class SqlServerHelper {
 
     private static final String BASE_URL = "http://10.0.2.2:8080/api/auth";
+    private static final String ADMIN_URL = "http://10.0.2.2:8080/api/admin";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -157,6 +158,82 @@ public class SqlServerHelper {
                         }
                     });
                 }
+            }
+        });
+    }
+
+    public void updateCourtAsync(final int id, final int price, final String status) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String q = "id=" + id + "&price=" + price
+                            + "&status=" + URLEncoder.encode(status, "UTF-8");
+                    URL url = new URL(ADMIN_URL + "/update-court?" + q);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+                    conn.getResponseCode();
+                    conn.disconnect();
+                } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    public void addCourtAsync(final String name, final int price) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String q = "name=" + URLEncoder.encode(name, "UTF-8") + "&price=" + price;
+                    URL url = new URL(ADMIN_URL + "/add-court?" + q);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+                    conn.getResponseCode();
+                    conn.disconnect();
+                } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    public void updateServiceAsync(final int id, final int price, final int stock) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String q = "id=" + id + "&price=" + price + "&stock=" + stock;
+                    URL url = new URL(ADMIN_URL + "/update-service?" + q);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+                    conn.getResponseCode();
+                    conn.disconnect();
+                } catch (Exception ignored) {}
+            }
+        });
+    }
+
+    public void addServiceAsync(final String name, final int price, final String unit, final int stock) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String q = "name=" + URLEncoder.encode(name, "UTF-8")
+                            + "&price=" + price
+                            + "&unit=" + URLEncoder.encode(unit, "UTF-8")
+                            + "&stock=" + stock;
+                    URL url = new URL(ADMIN_URL + "/add-service?" + q);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+                    conn.getResponseCode();
+                    conn.disconnect();
+                } catch (Exception ignored) {}
             }
         });
     }
