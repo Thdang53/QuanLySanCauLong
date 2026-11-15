@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="190dp"
+    android:height="190dp"
+    android:viewportWidth="25"
+    android:viewportHeight="25">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0 h25 v25 h-25 z" />
+    <!-- 3 Finder Patterns -->
+    <path
+        android:fillColor="#111111"
+        android:pathData="M0,0 h7 v7 h-7 z M18,0 h7 v7 h-7 z M0,18 h7 v7 h-7 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M1,1 h5 v5 h-5 z M19,1 h5 v5 h-5 z M1,19 h5 v5 h-5 z" />
+    <path
+        android:fillColor="#111111"
+        android:pathData="M2,2 h3 v3 h-3 z M20,2 h3 v3 h-3 z M2,20 h3 v3 h-3 z" />
+    <!-- QR Data Modules -->
+    <path
+        android:fillColor="#111111"
+        android:pathData="M8,1 h2 v2 h-2 z M12,0 h3 v2 h-3 z M9,4 h4 v2 h-4 z M15,3 h2 v3 h-2 z
+                          M1,8 h3 v2 h-3 z M6,9 h2 v3 h-2 z M10,8 h5 v2 h-5 z M17,9 h3 v2 h-3 z M22,8 h3 v3 h-3 z
+                          M2,12 h4 v2 h-4 z M8,12 h3 v3 h-3 z M13,11 h4 v2 h-4 z M19,12 h4 v2 h-4 z
+                          M0,15 h3 v2 h-3 z M5,15 h4 v2 h-4 z M11,15 h3 v3 h-3 z M16,14 h3 v3 h-3 z M21,15 h3 v2 h-3 z
+                          M8,19 h3 v2 h-3 z M13,19 h2 v3 h-2 z M17,18 h4 v2 h-4 z M23,19 h2 v3 h-2 z
+                          M9,22 h4 v3 h-4 z M15,22 h3 v2 h-3 z M20,22 h4 v3 h-4 z" />
+</vector>

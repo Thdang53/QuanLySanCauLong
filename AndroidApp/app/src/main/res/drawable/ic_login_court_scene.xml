@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="430dp"
+    android:height="240dp"
+    android:viewportWidth="430"
+    android:viewportHeight="260">
+    <!-- Mặt sân cầu lông phối cảnh dưới chân trang Login -->
+    <path
+        android:fillColor="#047857"
+        android:pathData="M-20,260 L120,105 L310,105 L450,260 Z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M-20,260 L120,105 L310,105 L450,260 Z M50,260 L142,105 M380,260 L288,105 M215,260 L215,170 M30,205 L400,205 M103,125 L327,125"
+        android:strokeColor="#D9FFFFFF"
+        android:strokeWidth="3" />
+    <!-- Lưới cầu lông trắng giữa sân -->
+    <path
+        android:fillColor="#40FFFFFF"
+        android:pathData="M62,136 L368,136 L368,168 L62,168 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M62,128 L62,176 M368,128 L368,176"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5.5" />
+    <!-- Quả cầu lông bay qua lưới -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M248,92 L262,85 L258,100 Z" />
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M245,94 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0" />
+    <!-- Vận động viên #7 áo xanh phía trước -->
+    <path
+        android:fillColor="#38000000"
+        android:pathData="M94,246 a26,5 0 1,0 52,0 a26,5 0 1,0 -52,0" />
+    <path
+        android:fillColor="#FCD5B0"
+        android:pathData="M112,218 L104,242 M128,218 L136,242"
+        android:strokeColor="#FCD5B0"
+        android:strokeWidth="7" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M94,242 a9,4.5 0 1,0 18,0 a9,4.5 0 1,0 -18,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M128,242 a9,4.5 0 1,0 18,0 a9,4.5 0 1,0 -18,0" />
+    <path
+        android:fillColor="#064E3B"
+        android:pathData="M106,204 L134,204 L134,220 L106,220 Z" />
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M105,172 L135,172 L135,206 L105,206 Z" />
+    <path
+        android:fillColor="#1F2937"
+        android:pathData="M120,154 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M104,151 L136,151 L136,156 L104,156 Z" />
+    <!-- Vợt của VĐV #7 -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M135,180 L158,155"
+        android:strokeColor="#FCD5B0"
+        android:strokeWidth="6" />
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M156,144 a11,14 0 1,0 22,0 a11,14 0 1,0 -22,0"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3" />
+    <!-- Vận động viên áo cam phía bên kia lưới -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M298,118 L318,118 L318,142 L298,142 Z" />
+    <path
+        android:fillColor="#7C2D12"
+        android:pathData="M298,140 L318,140 L318,150 L298,150 Z" />
+    <path
+        android:fillColor="#FCD5B0"
+        android:pathData="M308,106 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M297,103 L319,103 L319,107 L297,107 Z" />
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M272,110 a8,10 0 1,0 16,0 a8,10 0 1,0 -16,0"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5" />
+</vector>

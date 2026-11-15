@@ -19,7 +19,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText edtLoginUser, edtLoginPass;
     private Button btnLogin, btnRegisterNow;
-    private TextView tvForgotPass;
+    private TextView tvForgotPass, chipDemoCustomer, chipDemoStaff, chipDemoAdmin;
     private SqlServerHelper sqlServerHelper;
 
     @Override
@@ -29,8 +29,8 @@ public class LoginActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
-            window.setStatusBarColor(Color.parseColor("#7FD8BE"));
-            window.setNavigationBarColor(Color.parseColor("#04221B"));
+            window.setStatusBarColor(Color.parseColor("#7DD3FC"));
+            window.setNavigationBarColor(Color.parseColor("#047857"));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
@@ -43,20 +43,54 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnRegisterNow = findViewById(R.id.btnRegisterNow);
         tvForgotPass = findViewById(R.id.tvForgotPass);
+        chipDemoCustomer = findViewById(R.id.chipDemoCustomer);
+        chipDemoStaff = findViewById(R.id.chipDemoStaff);
+        chipDemoAdmin = findViewById(R.id.chipDemoAdmin);
 
-        // Bấm Sign In -> Xác thực trực tiếp với SQL Server (.\SQLEXPRESS -> BadmintonDB)
+        // Bấm nhanh 3 chip tài khoản demo (điền sẵn tài khoản & mật khẩu 123456)
+        chipDemoCustomer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                edtLoginUser.setText("khach");
+                edtLoginPass.setText("123456");
+            }
+        });
+
+        chipDemoStaff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                edtLoginUser.setText("nhanvien");
+                edtLoginPass.setText("123456");
+            }
+        });
+
+        chipDemoAdmin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                edtLoginUser.setText("quanly");
+                edtLoginPass.setText("123456");
+            }
+        });
+
+        // Bấm Đăng nhập -> Xác thực với SQL Server (.\SQLEXPRESS -> BadmintonDB)
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String user = edtLoginUser.getText().toString().trim();
+                String rawUser = edtLoginUser.getText().toString().trim();
                 String pass = edtLoginPass.getText().toString().trim();
 
-                if (user.isEmpty() || pass.isEmpty()) {
+                if (rawUser.isEmpty() || pass.isEmpty()) {
                     Toast.makeText(LoginActivity.this,
-                            "Vui lòng nhập Tài khoản (khach / nhanvien / quanly) và Mật khẩu!",
+                            "Vui lòng nhập Tài khoản và Mật khẩu!",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                // Hỗ trợ cả tên ngắn (khach/nhanvien/quanly) lẫn email demo
+                String user = rawUser.toLowerCase();
+                if ("khachhang@demo.vn".equals(user)) user = "khach";
+                else if ("nhanvien@demo.vn".equals(user)) user = "nhanvien";
+                else if ("chusan@demo.vn".equals(user)) user = "quanly";
 
                 btnLogin.setEnabled(false);
                 sqlServerHelper.authenticateAsync(user, pass, new SqlServerHelper.AuthCallback() {
@@ -64,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onSuccess(SqlServerHelper.UserAccount account) {
                         btnLogin.setEnabled(true);
                         Toast.makeText(LoginActivity.this,
-                                "Đăng nhập thành công (SQL Server): " + account.fullName,
+                                "Xin chào, " + account.fullName,
                                 Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, DaviesArenaActivity.class);
                         intent.putExtra("USER_ROLE", account.role);
@@ -82,7 +116,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Bấm Create an account -> Chuyển sang màn hình Đăng ký (ghi trực tiếp vào SQL Server)
         btnRegisterNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(LoginActivity.this,
-                        "SQL Server BadmintonDB: khach / nhanvien / quanly (MK: 123456)",
+                        "Tài khoản: khach / nhanvien / quanly (Mật khẩu: 123456)",
                         Toast.LENGTH_LONG).show();
             }
         });
