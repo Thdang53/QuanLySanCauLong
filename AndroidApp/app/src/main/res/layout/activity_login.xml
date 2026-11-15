@@ -8,7 +8,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="Emerald Badminton Court Background"
+        android:contentDescription="Sân cầu lông Davies Arena"
         android:scaleType="centerCrop"
         android:src="@drawable/bg_login_emerald_court" />
 
@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:background="#2604221B" />
 
-    <!-- Toàn bộ Form Đăng nhập + Nút Sign In gom gọn và căn chính giữa màn hình -->
+    <!-- Toàn bộ Form Đăng nhập + Nút Đăng Nhập gom gọn và căn chính giữa màn hình -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,7 +27,7 @@
         android:paddingStart="34dp"
         android:paddingEnd="34dp">
 
-        <!-- Tiêu đề chính -->
+        <!-- Tiêu đề chính Tiếng Việt -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:shadowDx="0"
             android:shadowDy="2"
             android:shadowRadius="4"
-            android:text="Davies Arena\nBadminton Club"
+            android:text="Davies Arena\nSân Cầu Lông"
             android:textColor="#FFFFFF"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -53,7 +53,7 @@
             android:textSize="11.5sp"
             android:textStyle="bold" />
 
-        <!-- Ô nhập 1: Tài khoản / SĐT (Viên thuốc trắng mờ) -->
+        <!-- Ô nhập 1: Tài khoản hoặc SĐT -->
         <EditText
             android:id="@+id/edtLoginUser"
             android:layout_width="match_parent"
@@ -64,7 +64,7 @@
             android:drawablePadding="12dp"
             android:drawableTint="#0D6E57"
             android:elevation="3dp"
-            android:hint="Email / Tài khoản"
+            android:hint="Tài khoản hoặc Số điện thoại"
             android:inputType="text"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
@@ -72,7 +72,7 @@
             android:textColorHint="#4A7C6F"
             android:textSize="14sp" />
 
-        <!-- Ô nhập 2: Mật khẩu (Viên thuốc trắng mờ) -->
+        <!-- Ô nhập 2: Mật khẩu -->
         <EditText
             android:id="@+id/edtLoginPass"
             android:layout_width="match_parent"
@@ -82,7 +82,7 @@
             android:drawablePadding="12dp"
             android:drawableTint="#0D6E57"
             android:elevation="3dp"
-            android:hint="Password"
+            android:hint="Mật khẩu"
             android:inputType="textPassword"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
@@ -90,7 +90,7 @@
             android:textColorHint="#4A7C6F"
             android:textSize="14sp" />
 
-        <!-- Dòng Forgot Password? căn phải ngay dưới ô Password -->
+        <!-- Dòng Quên mật khẩu? căn phải ngay dưới ô Mật khẩu -->
         <TextView
             android:id="@+id/tvForgotPass"
             android:layout_width="wrap_content"
@@ -102,36 +102,36 @@
             android:shadowDx="0"
             android:shadowDy="1"
             android:shadowRadius="3"
-            android:text="Forgot Password?"
+            android:text="Quên mật khẩu?"
             android:textColor="#ECFDF5"
             android:textSize="12.5sp"
             android:textStyle="bold" />
 
-        <!-- Nút Sign In đặt gần ngay dưới form (cách 26dp, không còn bị đẩy xa xuống đáy) -->
+        <!-- Nút Đăng Nhập đặt gần ngay dưới form -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnLogin"
-            android:layout_width="210dp"
+            android:layout_width="220dp"
             android:layout_height="50dp"
-            android:layout_marginTop="26dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/bg_btn_emerald_pill"
             android:elevation="6dp"
             android:stateListAnimator="@null"
-            android:text="Sign In"
+            android:text="Đăng Nhập"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15.5sp"
             android:textStyle="bold" />
 
-        <!-- Nút Create an account có khung nút bo tròn giống Sign In -->
+        <!-- Nút Tạo Tài Khoản Mới có khung nút bo tròn giống Đăng Nhập -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnRegisterNow"
-            android:layout_width="210dp"
+            android:layout_width="220dp"
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_btn_emerald_secondary_pill"
             android:elevation="4dp"
             android:stateListAnimator="@null"
-            android:text="Create an account"
+            android:text="Tạo Tài Khoản Mới"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"

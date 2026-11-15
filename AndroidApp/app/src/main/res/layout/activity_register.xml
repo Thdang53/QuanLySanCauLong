@@ -7,7 +7,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="Emerald Badminton Court Background"
+        android:contentDescription="Sân cầu lông Davies Arena"
         android:scaleType="centerCrop"
         android:src="@drawable/bg_login_emerald_court" />
 
@@ -16,7 +16,7 @@
         android:layout_height="match_parent"
         android:background="#2604221B" />
 
-    <!-- Toàn bộ Form Đăng ký căn chính giữa màn hình -->
+    <!-- Toàn bộ Form Đăng ký Tiếng Việt căn chính giữa màn hình -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -34,7 +34,7 @@
             android:shadowDx="0"
             android:shadowDy="2"
             android:shadowRadius="4"
-            android:text="Create Account\nDavies Arena"
+            android:text="Đăng Ký Tài Khoản\nDavies Arena"
             android:textColor="#FFFFFF"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:drawableStart="@drawable/ic_email"
             android:drawablePadding="12dp"
             android:drawableTint="#0D6E57"
-            android:hint="Số điện thoại / Email"
+            android:hint="Số điện thoại hoặc Email"
             android:inputType="textEmailAddress"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
@@ -75,7 +75,7 @@
             android:drawableStart="@drawable/ic_person"
             android:drawablePadding="12dp"
             android:drawableTint="#0D6E57"
-            android:hint="Tên đăng nhập"
+            android:hint="Tên tài khoản đăng nhập"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:textColor="#072A22"
@@ -107,7 +107,7 @@
             android:drawableStart="@drawable/ic_lock"
             android:drawablePadding="12dp"
             android:drawableTint="#0D6E57"
-            android:hint="Xác nhận mật khẩu"
+            android:hint="Xác nhận lại mật khẩu"
             android:inputType="textPassword"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
@@ -117,13 +117,13 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnRegSignIn"
-            android:layout_width="210dp"
+            android:layout_width="220dp"
             android:layout_height="50dp"
-            android:layout_marginTop="26dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/bg_btn_emerald_pill"
             android:elevation="6dp"
             android:stateListAnimator="@null"
-            android:text="Sign Up"
+            android:text="Đăng Ký Ngay"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15.5sp"
@@ -131,13 +131,13 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnRegCancel"
-            android:layout_width="210dp"
+            android:layout_width="220dp"
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_btn_emerald_secondary_pill"
             android:elevation="4dp"
             android:stateListAnimator="@null"
-            android:text="Back to Sign In"
+            android:text="Quay Lại Đăng Nhập"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"

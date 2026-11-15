@@ -15,7 +15,6 @@ import java.util.concurrent.Executors;
 
 /**
  * Kết nối từ Android Emulator (10.0.2.2:8080) tới Backend Server & Microsoft SQL Server (.\SQLEXPRESS -> BadmintonDB).
- * Hoàn toàn KHÔNG sử dụng SQLite.
  */
 public class SqlServerHelper {
 
@@ -59,8 +58,8 @@ public class SqlServerHelper {
                     URL url = new URL(BASE_URL + "/login?" + q);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(4000);
-                    conn.setReadTimeout(4000);
+                    conn.setConnectTimeout(3500);
+                    conn.setReadTimeout(3500);
 
                     int code = conn.getResponseCode();
                     InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
@@ -70,11 +69,10 @@ public class SqlServerHelper {
 
                     if (resp != null && resp.startsWith("OK|")) {
                         String[] parts = resp.split("\\|");
-                        // OK | MaNguoiDung | TaiKhoan | SoDienThoai | HoTen | VaiTro
                         int id = Integer.parseInt(parts[1].trim());
                         String username = parts[2].trim();
                         String phone = parts[3].trim();
-                        String fullName = parts[4].trim();
+                        String fullName = normalizeDisplayName(username, parts[4].trim());
                         String role = parts[5].trim();
                         final UserAccount acc = new UserAccount(id, username, phone, fullName, role);
                         mainHandler.post(new Runnable() {
@@ -95,12 +93,23 @@ public class SqlServerHelper {
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            callback.onError("Không kết nối được SQL Server Backend (port 8080): " + e.getMessage());
+                            callback.onError("Lỗi kết nối SQL Server Backend (port 8080): " + e.getMessage());
                         }
                     });
                 }
             }
         });
+    }
+
+    private String normalizeDisplayName(String username, String rawName) {
+        if ("khach".equalsIgnoreCase(username)) return "Khách Hàng";
+        if ("nhanvien".equalsIgnoreCase(username)) return "Nhân Viên";
+        if ("quanly".equalsIgnoreCase(username)) return "Quản Lý Sân";
+        if ("tuanle".equalsIgnoreCase(username)) return "Lê Minh Tuấn";
+        if ("baotran".equalsIgnoreCase(username)) return "Trần Quốc Bảo";
+        if ("maitran".equalsIgnoreCase(username)) return "Trần Thị Mai";
+        if ("namle".equalsIgnoreCase(username)) return "Lê Hoàng Nam";
+        return rawName;
     }
 
     public void registerCustomerAsync(final String username, final String phone, final String fullName,
@@ -116,8 +125,8 @@ public class SqlServerHelper {
                     URL url = new URL(BASE_URL + "/register?" + q);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(4000);
-                    conn.setReadTimeout(4000);
+                    conn.setConnectTimeout(3500);
+                    conn.setReadTimeout(3500);
 
                     int code = conn.getResponseCode();
                     InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
