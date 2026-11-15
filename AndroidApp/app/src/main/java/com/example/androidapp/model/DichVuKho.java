@@ -7,6 +7,7 @@ public class DichVuKho {
     private String donVi;
     private int soLuongTon;
     private String bieuTuong;
+    private int soLuongChon;
 
     public DichVuKho(int id, String tenMon, int donGia, String donVi, int soLuongTon, String bieuTuong) {
         this.id = id;
@@ -15,6 +16,7 @@ public class DichVuKho {
         this.donVi = donVi;
         this.soLuongTon = soLuongTon;
         this.bieuTuong = bieuTuong;
+        this.soLuongChon = 0;
     }
 
     public int getId() { return id; }
@@ -25,4 +27,6 @@ public class DichVuKho {
     public int getSoLuongTon() { return soLuongTon; }
     public void setSoLuongTon(int soLuongTon) { this.soLuongTon = soLuongTon; }
     public String getBieuTuong() { return bieuTuong; }
+    public int getSoLuongChon() { return soLuongChon; }
+    public void setSoLuongChon(int soLuongChon) { this.soLuongChon = Math.max(0, soLuongChon); }
 }

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header: Ảnh sân + Tên sân + Giá/giờ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_soft_22"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="68dp"
+                android:layout_height="68dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Ảnh sân"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg_login_emerald_court" />
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvDlgCourtName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sân 1 • Thảm Yonex VIP"
+                    android:textColor="#1A1F36"
+                    android:textSize="15.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDlgCourtPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Đơn giá: 80,000đ / giờ"
+                    android:textColor="#059669"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Mục 1: Chọn khung giờ trực quan (Bấm chọn ca hoặc mở Đồng hồ TimePicker) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="Chọn khung giờ chơi"
+            android:textColor="#1A1F36"
+            android:textSize="13.5sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/chipSlot1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_soft_22"
+                android:gravity="center"
+                android:text="07:00 - 09:00"
+                android:textColor="#1A1F36"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/chipSlot2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_pill_teal"
+                android:gravity="center"
+                android:text="17:00 - 19:00"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/chipSlot3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_soft_22"
+                android:gravity="center"
+                android:text="19:00 - 21:00"
+                android:textColor="#1A1F36"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnPickCustomTime"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_badge_gold"
+                android:gravity="center"
+                android:text="🕒 Chọn giờ đồng hồ"
+                android:textColor="#D97706"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSelectedSlotInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text=" Đã chọn: 17:00 - 19:00 (2 giờ)"
+            android:textColor="#059669"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <!-- Mục 2: Ghi chú quy định đặt cọc trước 30% -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_badge_good"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📝 Ghi chú đặt sân"
+                android:textColor="#047857"
+                android:textSize="12.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Khi đặt sân cần cọc trước 30% để giữ sân. Phần còn lại thanh toán sau khi chơi."
+                android:textColor="#065F46"
+                android:textSize="11.5sp" />
+
+            <EditText
+                android:id="@+id/edtBookingNote"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_soft_22"
+                android:hint="Ghi chú thêm (mượn vợt, thêm cầu...)"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="#1A1F36"
+                android:textColorHint="#94A3B8"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Mục 3: Chọn hình thức thanh toán (Mã QR / Tiền mặt) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="6dp"
+            android:text="Phương thức thanh toán"
+            android:textColor="#1A1F36"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnPayMethodQR"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_pill_teal"
+                android:gravity="center"
+                android:text="📱 Quét mã QR"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnPayMethodCash"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_soft_22"
+                android:gravity="center"
+                android:text="💵 Tiền mặt"
+                android:textColor="#1A1F36"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Ảnh mã QR VietQR tự động (ẩn khi chọn Tiền mặt) -->
+        <ImageView
+            android:id="@+id/imgBookingQr"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:contentDescription="Mã QR thanh toán"
+            android:scaleType="fitCenter" />
+
+        <!-- Tổng kết tiền ngắn gọn -->
+        <TextView
+            android:id="@+id/tvDlgTotalAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Tổng sân: 160,000đ  •  Cọc 30%: 48,000đ"
+            android:textColor="#1A1F36"
+            android:textSize="13.5sp"
+            android:textStyle="bold" />
+
+        <!-- Nút bấm duy nhất: Thanh toán -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCancelBooking"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="0.8"
+                android:background="@drawable/bg_card_soft_22"
+                android:stateListAnimator="@null"
+                android:text="Đóng"
+                android:textAllCaps="false"
+                android:textColor="#64748B"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnConfirmPayBooking"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="1.5"
+                android:background="@drawable/bg_btn_emerald_pill"
+                android:stateListAnimator="@null"
+                android:text="Thanh toán"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="14.5sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
