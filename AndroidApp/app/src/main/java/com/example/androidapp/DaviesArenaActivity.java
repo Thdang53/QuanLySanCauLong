@@ -64,8 +64,10 @@ public class DaviesArenaActivity extends AppCompatActivity {
 
     // Admin revenue date & filter state (Mặc định 15/11/2026, có đầy đủ dữ liệu từ 01/11/2026 -> 30/11/2026)
     private int adminSelectedDay = 15;
+    private int adminChartEndDay = 15;
     private int adminSelectedMonth = 11;
     private int adminSelectedYear = 2026;
+    private boolean pendingScrollToInvoices = false;
     private String adminInvoiceFilter = "ALL"; // ALL, COC_QR, TAI_QUAY, DICH_VU
 
     // Admin Nhân sự & Xếp ca state
@@ -925,7 +927,10 @@ public class DaviesArenaActivity extends AppCompatActivity {
         containerDynamicBody.addView(row2);
 
         // ==================== 3. BIỂU ĐỒ 7 NGÀY HIỂN THỊ RÕ THỨ + NGÀY/THÁNG ====================
-        int endDay = Math.min(30, Math.max(7, adminSelectedDay));
+        if (adminSelectedDay < adminChartEndDay - 6 || adminSelectedDay > adminChartEndDay) {
+            adminChartEndDay = Math.min(30, Math.max(7, adminSelectedDay));
+        }
+        int endDay = adminChartEndDay;
         int startDay = endDay - 6;
         containerDynamicBody.addView(createSectionHeading(
                 String.format(Locale.US, "Doanh thu theo ngày (%02d/%02d – %02d/%02d • nghìn đồng)",
@@ -946,7 +951,8 @@ public class DaviesArenaActivity extends AppCompatActivity {
         }
 
         for (int d = startDay; d <= endDay; d++) {
-            DataStore.DailyRevenueRecord rec = DataStore.getRevenueRecordForDate(d, adminSelectedMonth, adminSelectedYear);
+            final int chosenDay = d;
+            final DataStore.DailyRevenueRecord rec = DataStore.getRevenueRecordForDate(d, adminSelectedMonth, adminSelectedYear);
             int valK = rec.getTongDoanhThu() / 1000;
             boolean isSelectedBar = (d == adminSelectedDay);
 
@@ -989,14 +995,37 @@ public class DaviesArenaActivity extends AppCompatActivity {
             tvDateShort.setTypeface(null, isSelectedBar ? Typeface.BOLD : Typeface.NORMAL);
             col.addView(tvDateShort);
 
+            col.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    adminSelectedDay = chosenDay;
+                    pendingScrollToInvoices = true;
+                    renderScreen();
+                    Toast.makeText(DaviesArenaActivity.this,
+                            "Chi tiết hóa đơn " + rec.thu + " (" + rec.ngayDayDu + "): " + formatMoney(rec.getTongDoanhThu()),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
             barContainer.addView(col);
         }
         chartCard.addView(barContainer);
         containerDynamicBody.addView(chartCard);
 
         // ==================== 4. CHI TIẾT HÓA ĐƠN TRONG NGÀY ĐANG CHỌN ====================
-        containerDynamicBody.addView(createSectionHeading(
-                "Chi tiết hóa đơn ngày " + activeDay.ngayDayDu + " (" + dispInvoices.size() + " đơn)"));
+        final TextView tvInvoiceHeading = createSectionHeading(
+                "Chi tiết hóa đơn ngày " + activeDay.ngayDayDu + " (" + dispInvoices.size() + " đơn)");
+        containerDynamicBody.addView(tvInvoiceHeading);
+
+        if (pendingScrollToInvoices && scrollMainContent != null) {
+            pendingScrollToInvoices = false;
+            scrollMainContent.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollMainContent.smoothScrollTo(0, tvInvoiceHeading.getTop());
+                }
+            });
+        }
 
         LinearLayout filterRow = new LinearLayout(this);
         filterRow.setOrientation(LinearLayout.HORIZONTAL);
